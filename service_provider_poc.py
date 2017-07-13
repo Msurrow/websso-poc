@@ -2,6 +2,10 @@ from flask import Flask, request, redirect
 import base64,uuid
 import sys
 from time import gmtime, strftime
+from bs4 import BeautifulSoup
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+
 app = Flask(__name__)
 
 """
@@ -35,9 +39,20 @@ def kai_themes():
 
 	if saml_reponse:
 		# Will be base64 encoded.
-		saml_reponse_decoded = base64.b64decode(saml_reponse).decode('utf-8')
-		print("This is the SAML Response decoded: {}".format(saml_reponse_decoded))
-		return '<h3>The list of KAI-themes as JSON</h3><div><ul><li>foo</li><li>bar</li></ul></div><br/><br/><br/><br/><hr/>The SAML Response:<br/>{}'.format(saml_reponse_decoded)
+		saml_response_decoded = base64.b64decode(saml_reponse)
+		
+		soup = BeautifulSoup(saml_response_decoded, 'xml-parser')
+		assertion_cipher = soup.findAll()[1]
+		print("\n\nCIPHER TEXT: {}".format(assertion_cipher))
+
+		key = open("privatekey.pem", "r").read() 
+		rsakey = RSA.importKey(key)
+		rsakey = PKCS1_OAEP.new(rsakey)
+		assertion_cleartext = rsakey.decrypt(assertion_cipher)
+		saml_response_decrypted = assertion_cleartext
+
+		print("This is the SAML Assertion decoded and decrupted: {}".format(saml_response_decrypted))
+		return '<h3>The list of KAI-themes as JSON</h3><div><ul><li>foo</li><li>bar</li></ul></div><br/><br/><br/><br/><hr/>The SAML Response:<br/>{}'.format(saml_response_decoded)
 	else:
 		issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
 		#msg_id = str(uuid.uuid1())
