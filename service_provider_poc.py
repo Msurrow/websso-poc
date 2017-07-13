@@ -33,13 +33,13 @@ def kai_themes():
 	# Check if get request has SAML Token
 	print("POST request headers:\n{}\nPOST request form:\n{}\nPOST request args:\n{}\n".format(request.headers, list(request.form.items()), list(request.args.items())))
 	
-	saml_reponse = request.form.get('SAMLResponse')
+	saml_response = request.form.get('SAMLResponse')
 	replay_state = request.form.get('ReplayState')
-	print("SAML_RESPONSE: {}".format(saml_reponse))
+	print("SAML_RESPONSE: {}".format(saml_response))
 
-	if saml_reponse:
+	if saml_response:
 		# Will be base64 encoded.
-		saml_response_decoded = base64.b64decode(saml_reponse, 'utf-8')
+		saml_response_decoded = base64.b64decode(bytes(saml_response, 'utf-8'))
 		
 		soup = BeautifulSoup(saml_response_decoded, 'xml')
 		assertion_cipher = soup.findAll("CipherValue")[1]
