@@ -8,27 +8,22 @@ Config vars for PoC
 """
 idp_url = "https://idp.ssocircle.com:443/sso/SSORedirect/metaAlias/publicidp"
 saml_authnrequest = """
-<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" 
-					xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" 
-					ID="aaf23196-1773-2113-474a-fe114412ab72" 
-					Version="2.0"
-					ProviderName="SP_SSO_PoC"
-					IssueInstant="2004-12-05T09:21:59" 
-					AssertionConsumerServiceIndex="1">
-	<saml:Issuer>
-		https://idp.ssocircle.com
-	</saml:Issuer>
-	<samlp:NameIDPolicy AllowCreate="true" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient"/>
-</samlp:AuthnRequest>
+<sp:AuthnRequest xmlns:sp="urn:oasis:names:tc:SAML:2.0:protocol" AssertionConsumerServiceIndex="1" ID="really_unique_id_42" ProviderName="SP SSOPoC" Version="2.0">
+	<sa:Issuer xmlns:sa="urn:oasis:names:tc:SAML:2.0:assertion">
+		http://websso-poc.herokuapp.com/
+	</sa:Issuer>
+	<sp:NameIDPolicy AllowCreate="true" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">
+	</sp:NameIDPolicy>
+</sp:AuthnRequest>
 """
-saml_authnrequest_b64 = "fZHNasMwEITPKfQdjO6KLcWpiYgDJqFg6I%2BpS69BtTdEYEuuVk7Tt6%2BcNC7tIbppd76Z1WqJsm06kfVur1%2Fgowd0wbFtNIpTIyW91cJIVCi0bAGFq0SZPT4IPo1EZ40zlWlIcHszGc4veR2UiGCdMnok801KpNzxGVvcUZYkM8oZm9E4iSXdAWNxzLh8T%2FgIvIFFb5AS70d%2BaoU1B1WDffKBKSmLbVk%2BbwuzvvRzxB5yjU5q58EoiinjNJq%2FRgvBmZgvRvfsMuDaaOxbsCXYg6o8XMMxJYysvHA5PFScTO1wn%2Byd61CEoaq7KaKplK0amFamHcThP%2FXyvPlh1nxTmEZVX0HWNOZzbUE6P7%2BzPZDg3thWuuvrHCqqpruTVDgrNSrQjoQ%2B55z794dX3w%3D%3D"
+saml_authnrequest_b64 = "fZHLasMwEEXXKfQfhPax29CViAPGoWDow9TQbVDtKRaVNeqMlMffV3ZIKV1ke5mZcy6zZq%2FKGAb3Bt8ROIjjaB0r9oWM5BRqNqycHoFV6FRbPj%2BpVXanPGHADq0UJTNQMOgqdBxHoBZobzqoXQ%2FHQt5LUW8LSaCtPe2iM4myM%2F3uYSVFQ7g3PdBLOl%2FIthFt%2B9pgJcU7EKeLhUwoubm9WaxZq5o5Al389HU%2FfbGa1xdDCF7l%2BQE%2BmHHpscsGIPyK2vuswzGfEPkv40z0avKqtw1a051EaS0eqtQjJNdAEaR4RBp1uC4yJaZffs6jyk%2FFOIAL51r5P0oK5%2BzvRzY%2F"
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
     	return 'Simple WebSSO PoC. Do a GET to /kai-themes'
     if request.method == 'POST':
-    	return "POST request headers: {}\n\n\nPOST request data:{}".format(request.headers, request.data)
+    	return "POST request headers: {}<br/><br/>POST request data:{}".format(request.headers, request.data)
 
 @app.route('/kai-themes')
 def kai_themes():
