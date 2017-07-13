@@ -45,7 +45,7 @@ def kai_themes():
 		assertion_cipher = soup.findAll()[1]
 		print("\n\nCIPHER TEXT: {}".format(assertion_cipher))
 
-		key = open("privatekey.pem", "r").read() 
+		key = open("privatekey.der", "r").read() 
 		rsakey = RSA.importKey(key)
 		rsakey = PKCS1_OAEP.new(rsakey)
 		assertion_cleartext = rsakey.decrypt(assertion_cipher)
