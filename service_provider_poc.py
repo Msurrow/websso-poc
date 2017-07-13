@@ -23,9 +23,12 @@ saml_authnrequest = """
 """
 saml_authnrequest_b64 = "fZHNasMwEITPKfQdjO6KLcWpiYgDJqFg6I%2BpS69BtTdEYEuuVk7Tt6%2BcNC7tIbppd76Z1WqJsm06kfVur1%2Fgowd0wbFtNIpTIyW91cJIVCi0bAGFq0SZPT4IPo1EZ40zlWlIcHszGc4veR2UiGCdMnok801KpNzxGVvcUZYkM8oZm9E4iSXdAWNxzLh8T%2FgIvIFFb5AS70d%2BaoU1B1WDffKBKSmLbVk%2BbwuzvvRzxB5yjU5q58EoiinjNJq%2FRgvBmZgvRvfsMuDaaOxbsCXYg6o8XMMxJYysvHA5PFScTO1wn%2Byd61CEoaq7KaKplK0amFamHcThP%2FXyvPlh1nxTmEZVX0HWNOZzbUE6P7%2BzPZDg3thWuuvrHCqqpruTVDgrNSrQjoQ%2B55z794dX3w%3D%3D"
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return 'Simple WebSSO PoC. Do a GET to /kai-themes'
+    if request.method == 'GET':
+    	return 'Simple WebSSO PoC. Do a GET to /kai-themes'
+    if request.method == 'POST':
+    	print("POST received:\n{}".format(request))
 
 @app.route('/kai-themes')
 def kai_themes():
