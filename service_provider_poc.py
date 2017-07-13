@@ -38,7 +38,7 @@ def kai_themes():
 		soup = BeautifulSoup(saml_response_decrypted, 'xml')
 		saml_subject_name = soup.findAll("Attribute", {"FriendlyName":"uid"})[0].text.lstrip().rstrip()
 
-		return '<h3>Logged in as {}</h3><h4>The list of KAI-themes as JSON</h4><div><ul><li>KAI-tema01</li><li>KAI-tema02</li></ul></div>{}'.format(saml_subject_name)
+		return '<h3>Logged in as {}</h3><h4>The list of KAI-themes as JSON</h4><div><ul><li>KAI-tema01</li><li>KAI-tema02</li></ul></div>'.format(saml_subject_name)
 	else:
 		issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
 		#msg_id = str(uuid.uuid1())
