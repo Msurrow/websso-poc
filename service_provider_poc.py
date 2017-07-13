@@ -27,10 +27,12 @@ def index():
 @app.route('/kai-themes', methods=['GET','POST'])
 def kai_themes():
 	# Check if get request has SAML Token
-	print("POST request headers:\n{}\nPOST request data:\n{}\nPOST request args:\n{}\n".format(request.headers, list(request.form.items()), list(request.args.items())))
+	print("POST request headers:\n{}\nPOST request form:\n{}\nPOST request args:\n{}\n".format(request.headers, list(request.form.items()), list(request.args.items())))
 	
-	saml_token = request.args.get('SAMLResponse')
-	if saml_token:
+	saml_reponse = request.form.get('SAMLResponse')
+	replay_state = request.form.get('ReplayState')
+
+	if saml_reponse:
 		return '{The list of KAI-themes as JSON}'
 	else:
 		issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
