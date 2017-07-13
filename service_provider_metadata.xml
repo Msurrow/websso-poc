@@ -2,8 +2,8 @@
 <EntityDescriptor entityID="websso-poc.herokuapp.com" xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
 	<SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
 		<NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</NameIDFormat>
-		<AssertionConsumerService index="0" isDefault="true" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://websso-poc.herokuapp.com/"/>
-		<AssertionConsumerService index="1" isDefault="true" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://websso-poc.herokuapp.com/success"/>
+		<AssertionConsumerService index="0" isDefault="false" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://websso-poc.herokuapp.com/"/>
+		<AssertionConsumerService index="1" isDefault="false" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://websso-poc.herokuapp.com/success"/>
 		<AssertionConsumerService index="2" isDefault="true" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://websso-poc.herokuapp.com/kai-themes"/>
 	</SPSSODescriptor>
 </EntityDescriptor>

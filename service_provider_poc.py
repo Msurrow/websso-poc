@@ -31,8 +31,12 @@ def kai_themes():
 	
 	saml_reponse = request.form.get('SAMLResponse')
 	replay_state = request.form.get('ReplayState')
+	print("SAML_RESPONSE: {}".format(saml_reponse))
 
 	if saml_reponse:
+		# Will be base64 encoded.
+		saml_reponse_decoded = base64.b64decode(saml_reponse).decode('utf-8')
+		print("This is the SAML Response decoded: {}".format(saml_reponse_decoded))
 		return '{The list of KAI-themes as JSON}'
 	else:
 		issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
@@ -52,3 +56,18 @@ def kai_themes():
 
 if __name__ == "__main__":
 	app.run(debug=True, host="0.0.0.0",port=int(sys.argv[1]))
+
+
+"""
+XML Response example:
+<?xml version="1.0" encoding="UTF-8"?>
+	<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" Destination="http://websso-poc.herokuapp.com/kai-themes" ID="_64ed5bfda15b5325dadc93831869ef56" InResponseTo="a2017-07-13T15:47:30" IssueInstant="2017-07-13T15:47:34.156Z" Version="2.0">
+	<saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
+		https://idp.testshib.org/idp/shibboleth
+	</saml2:Issuer>
+	<saml2p:Status>
+		<saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder"/>
+		<saml2p:StatusMessage>Unable to encrypt assertion</saml2p:StatusMessage>
+	</saml2p:Status>
+</saml2p:Response>
+"""
