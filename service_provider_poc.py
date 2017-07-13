@@ -56,6 +56,7 @@ def index():
 @app.route('/kai-themes')
 def kai_themes():
 	# Check if get request has SAML Token
+	print("REQUEST HEADERS: {}\n\n\nREQUEST ARGS:{}".format(request.headers, request.args))
 	saml_token = request.args.get('SAMLResponse')
 	if saml_token:
 		return '{The list of KAI-themes as JSON}'
