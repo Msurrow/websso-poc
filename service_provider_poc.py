@@ -37,7 +37,7 @@ def kai_themes():
 		# Will be base64 encoded.
 		saml_reponse_decoded = base64.b64decode(saml_reponse).decode('utf-8')
 		print("This is the SAML Response decoded: {}".format(saml_reponse_decoded))
-		return '{The list of KAI-themes as JSON}<br/><br/><br/><br/><hr/>The SAML Response:<br/>{}'.format(saml_reponse_decoded)
+		return '<h3>The list of KAI-themes as JSON</h3><div><ul><li>foo</li><li>bar</li></ul></div><br/><br/><br/><br/><hr/>The SAML Response:<br/>{}'.format(saml_reponse_decoded)
 	else:
 		issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
 		#msg_id = str(uuid.uuid1())
