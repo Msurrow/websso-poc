@@ -1,10 +1,12 @@
 from flask import Flask, request, redirect
+from flask_cors import CORS
 import base64,uuid
 import sys
 from time import gmtime, strftime
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
+CORS(app)
 
 idp_url = "https://idp.testshib.org/idp/profile/SAML2/POST/SSO"
 
