@@ -2,5 +2,4 @@ venv_ssopoc/
 .DS_Store
 .DS_Store/
 .gitignore~
-public_privatekey.pfx
 publickey.cer
