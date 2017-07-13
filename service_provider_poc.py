@@ -22,20 +22,20 @@ def index():
     if request.method == 'GET':
     	return 'Simple WebSSO PoC. Do a GET to /kai-themes'
     if request.method == 'POST':
-    	return "POST request headers:\n{}<br/><br/>POST request data:\n{}<br/><br/>REQUEST ARGS:{}".format(request.headers, request.data, list(request.args.items()))
+    	return "POST request headers:\n{}\n\n<br/><br/>POST request data:\n{}\n\n<br/><br/>POST request args:\n{}\n\n<br/><br/>".format(request.headers, list(request.form.items()), list(request.args.items()))
 
 @app.route('/kai-themes', methods=['GET','POST'])
 def kai_themes():
 	# Check if get request has SAML Token
-	print("REQUEST HEADERS: {}\n\nPOST request data:\n{}\n\nREQUEST ARGS:{}".format(request.headers, request.data, list(request.args.items())))
+	print("POST request headers:\n{}\nPOST request data:\n{}\nPOST request args:\n{}\n".format(request.headers, list(request.form.items()), list(request.args.items())))
 	
 	saml_token = request.args.get('SAMLResponse')
 	if saml_token:
 		return '{The list of KAI-themes as JSON}'
 	else:
 		issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
-		msg_id = str(uuid.uuid1())
-		saml_authnrequest = saml_authnrequest_template.format(issueInstant,issueInstant)
+		#msg_id = str(uuid.uuid1())
+		saml_authnrequest = saml_authnrequest_template.format(issueInstant,issueInstant) #UUID as ID gave problems. timestamp is unique enough for this PoC (one message per second)
 		saml_authnrequest_encoded = base64.b64encode(bytes(saml_authnrequest, 'utf-8')).decode('utf-8')
 		#return redirect("{}?SAMLRequest={}".format(idp_url,saml_authnrequest_encoded))
 		#return "{}?SAMLRequest={}".format(idp_url,saml_authnrequest_encoded)
