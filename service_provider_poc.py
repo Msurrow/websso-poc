@@ -39,9 +39,9 @@ def kai_themes():
 
 	if saml_reponse:
 		# Will be base64 encoded.
-		saml_response_decoded = base64.b64decode(saml_reponse, 'xml')
+		saml_response_decoded = base64.b64decode(saml_reponse, 'utf-8')
 		
-		soup = BeautifulSoup(saml_response_decoded)
+		soup = BeautifulSoup(saml_response_decoded, 'xml')
 		assertion_cipher = soup.findAll("CipherValue")[1]
 		print("\n\nCIPHER TEXT: {}".format(assertion_cipher))
 
