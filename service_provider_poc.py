@@ -8,16 +8,7 @@ from Crypto.Cipher import PKCS1_OAEP
 
 app = Flask(__name__)
 
-"""
-Config vars for PoC
-"""
 idp_url = "https://idp.testshib.org/idp/profile/SAML2/POST/SSO"
-# authnrequest_ID = ""
-# authnrequest_issueInstant = "" #Format from SSOCircle example: 2017-07-13T18:35:07Z
-# authnrequest_binding = "" #From SSOCircle example: SAML2_BINDINGS_POST
-# authnrequest_assertionConsumerServiceURL = ""
-# authnrequest_issuer = ""
-# authnrequest_spNameQualifier = ""
 
 saml_authnrequest_template = "<samlp:AuthnRequest xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" AssertionConsumerServiceURL=\"http://websso-poc.herokuapp.com/kai-themes\" IssueInstant=\"{}\" ID=\"a{}\" > <saml:Issuer > websso-poc.herokuapp.com </saml:Issuer> </samlp:AuthnRequest >"
 
@@ -30,7 +21,6 @@ def index():
 
 @app.route('/kai-themes', methods=['GET','POST'])
 def kai_themes():
-	# Check if get request has SAML Token
 	print("POST request headers:\n{}\nPOST request form:\n{}\nPOST request args:\n{}\n".format(request.headers, list(request.form.items()), list(request.args.items())))
 	
 	saml_response = request.form.get('SAMLResponse')
@@ -38,18 +28,16 @@ def kai_themes():
 	print("SAML_RESPONSE: {}".format(saml_response))
 
 	if saml_response:
-		# Will be base64 encoded.
 		saml_response_decoded = base64.b64decode(bytes(saml_response, 'utf-8'))
 		
 		soup = BeautifulSoup(saml_response_decoded, 'xml')
-		assertion_cipher = soup.findAll("CipherValue")[1]
+		assertion_cipher = soup.findAll("CipherValue")[1].string
 		print("\n\nCIPHER TEXT: {}".format(assertion_cipher))
 
-		key = open("privatekey.der", "r").read() 
-		rsakey = RSA.importKey(key)
+		f = open('privatekey.pem','r')
+		rsakey = RSA.importKey(f.read(),passphrase='Abemad4me')
 		rsakey = PKCS1_OAEP.new(rsakey)
-		assertion_cleartext = rsakey.decrypt(assertion_cipher)
-		saml_response_decrypted = assertion_cleartext
+		saml_response_decrypted = rsakey.decrypt(base64.b64decode(assertion_cipher))
 
 		print("This is the SAML Assertion decoded and decrupted: {}".format(saml_response_decrypted))
 		return '<h3>The list of KAI-themes as JSON</h3><div><ul><li>foo</li><li>bar</li></ul></div><br/><br/><br/><br/><hr/>The SAML Response:<br/>{}'.format(saml_response_decoded)
@@ -58,8 +46,7 @@ def kai_themes():
 		#msg_id = str(uuid.uuid1())
 		saml_authnrequest = saml_authnrequest_template.format(issueInstant,issueInstant) #UUID as ID gave problems. timestamp is unique enough for this PoC (one message per second)
 		saml_authnrequest_encoded = base64.b64encode(bytes(saml_authnrequest, 'utf-8')).decode('utf-8')
-		#return redirect("{}?SAMLRequest={}".format(idp_url,saml_authnrequest_encoded))
-		#return "{}?SAMLRequest={}".format(idp_url,saml_authnrequest_encoded)
+
 		return '''
 			<form method="post" action="{}">
 				<input type="hidden" name="SAMLRequest" value="{}" />
@@ -67,7 +54,6 @@ def kai_themes():
 				<input type="submit" value="Submit" />
 			</form>
 		'''.format(idp_url,saml_authnrequest_encoded)
-
 
 if __name__ == "__main__":
 	app.run(debug=True, host="0.0.0.0",port=int(sys.argv[1]))
