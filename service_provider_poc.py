@@ -40,7 +40,8 @@ def kai_themes():
 		saml_response_decrypted = rsakey.decrypt(base64.b64decode(assertion_cipher))
 
 		print("This is the SAML Assertion decoded and decrupted: {}".format(saml_response_decrypted))
-		return '<h3>The list of KAI-themes as JSON</h3><div><ul><li>foo</li><li>bar</li></ul></div><br/><br/><br/><br/><hr/>The SAML Response:<br/>{}'.format(saml_response_decoded)
+		return assertion_cipher
+		#return '<h3>The list of KAI-themes as JSON</h3><div><ul><li>foo</li><li>bar</li></ul></div><br/><br/><br/><br/><hr/>The SAML Response:<br/>{}'.format(saml_response_decoded)
 	else:
 		issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
 		#msg_id = str(uuid.uuid1())
