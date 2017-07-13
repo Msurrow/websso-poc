@@ -1,1 +1,1 @@
-web: python service_provider_poc.py
+web: python service_provider_poc.py $PORT
