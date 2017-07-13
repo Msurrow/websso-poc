@@ -28,7 +28,7 @@ def index():
     if request.method == 'GET':
     	return 'Simple WebSSO PoC. Do a GET to /kai-themes'
     if request.method == 'POST':
-    	print("POST received:\n{}".format(request))
+    	return "POST request headers: {}\n\n\nPOST request data:{}".format(request.headers, request.data)
 
 @app.route('/kai-themes')
 def kai_themes():
