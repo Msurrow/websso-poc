@@ -53,7 +53,7 @@ def kai_themes():
 	else:
 		# Client attempts to get data from endpoint.
 		# Check if client is logged in
-		if (has_token):
+		if (request.args['token']):
 			# Client has a valid token and is logged in
 			kai_data = ['KAI-Tema 01', 'KAI-Tema 02', 'KAI-Tema 03']
 			return jsonify(kai_data)

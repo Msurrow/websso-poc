@@ -8,7 +8,7 @@ $(document).ready(function(){
 	var hentDataButton = $('#hentDataButton');
 
 	hentDataButton.on('click', function(){
-		$.get("http://websso-poc.herokuapp.com/kai-themes", function(data, status) {
+		$.get("http://websso-poc.herokuapp.com/kai-themes?token="+user_token, function(data, status) {
 			var DOM_rep_window = document.getElementById('ResponseWindow');
 			DOM_rep_window.appendChild(document.createElement("hr"));
 
