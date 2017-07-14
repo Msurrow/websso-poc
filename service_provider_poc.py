@@ -1,5 +1,5 @@
 from flask import Flask, request, redirect
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import base64,uuid
 import sys
 from time import gmtime, strftime
