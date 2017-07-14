@@ -69,7 +69,7 @@ def kai_themes():
 			return '''
 				<form method="post" action="{}">
 					<input type="hidden" name="SAMLRequest" value="{}" />
-					<input type="hidden" name="RelayState" value="token007" />
+					<input type="hidden" name="RelayState" value="" />
 					<input type="submit" value="Submit" />
 				</form>
 			'''.format(idp_url,saml_authnrequest_encoded)

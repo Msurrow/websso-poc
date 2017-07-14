@@ -40,6 +40,7 @@ $(document).ready(function(){
 				newnode.innerText = "Her er data fra Service Provider (JSON med en liste KAI-temaer):";
 				DOM_rep_window.appendChild(newnode);	
 				newnode = document.createElement("div");
+				console.log(data)
 				newnode.innerHTML = data;
 				DOM_rep_window.appendChild(newnode);
 			}
