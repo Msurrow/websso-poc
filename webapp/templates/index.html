@@ -2,6 +2,13 @@
 <head>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="/static/webclient.js"></script>
+	<script>
+		var user_token = '{{ token }}';
+		if (user_token) {
+			rsnode = document.getElementById("ResponseWindow");
+			rsnode.innerText = "Vi er logget ind! Token er: "+user_token
+		}
+	</script>
 </head>
 <body>
 	<h1>KAI-Basen WebSSO PoC</h1>
@@ -10,5 +17,8 @@
 	</span>
 	<br/></br>
 	<button id='hentDataButton'>Hent noget data</button>
+	<br/>
+	<div id="ResponseWindow">
+	</div>
 </body>
 </html>

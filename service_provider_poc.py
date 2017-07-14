@@ -32,13 +32,25 @@ def kai_themes():
 	print("POST request headers:\n{}\nPOST request form:\n{}\nPOST request args:\n{}\n".format(request.headers, list(request.form.items()), list(request.args.items())))
 	
 	saml_response = request.form.get('SAMLResponse')
-	replay_state = request.form.get('ReplayState')
+	relay_state = request.form.get('RelayState')
 
 	if saml_response:
+		# Validate SAML Assertion
 		saml_response_decrypted = decode_and_decrypt_response(saml_response)
 		
+		# Extract information from SAML Assertion
 		soup = BeautifulSoup(saml_response_decrypted, 'xml')
 		saml_subject_name = soup.findAll("Attribute", {"FriendlyName":"uid"})[0].text.lstrip().rstrip()
+
+		# Generate a token to return to the user, for use with further API requests
+		# 	Token should have a Time-To-Live that is at most the TTL of the SAML Token
+		#	This is NOT an example of how to generate a token
+		token = "super_secret_token_beloging_to_{}".format(saml_subject_name)
+		
+		# Redirect to the server in RelayState with token (assumes frontendserver set the RelayState correct)
+		return redirect(relay_state+"?token="+token)
+		
+
 
 		return '<h3>Logged in as {}</h3><h4>The list of KAI-themes as JSON</h4><div><ul><li>KAI-tema01</li><li>KAI-tema02</li></ul></div>'.format(saml_subject_name)
 	else:

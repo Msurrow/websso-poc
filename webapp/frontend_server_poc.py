@@ -1,13 +1,38 @@
-from flask import Flask, send_file
+from flask import Flask, send_file, request
 import sys
-from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-CORS(app)
 
 @app.route('/')
 def index():
-	return send_file("templates/index.html")
+	return render_template("templates/index.html", token='')
+
+@app.route('login_complete')
+def login_complete():
+	
+	# Get the users token
+	token = request.args['token']
+
+	# Redirect to index with token
+	return render_template("templates/index.html", token=token)
 
 if __name__ == "__main__":
 	app.run(debug=True, host="0.0.0.0",port=int(sys.argv[1]))
+
+
+"""
+
+browser --> frontendserver --> webklient --> websso-poc --> webklient --> 
+Idp --> redirect til websso-poc. dvs browser indhold er nu websso-poc og ikke frontendserver
+direct giver "kontrol" til websso-poc http-server. 
+
+Vi kan putte noget i relay state: det skal være noget der redirecter tilbage til frontendserver
+Det kunne være frontendserver.dk/index.html
+
+Løsningsmodel 1: Modificer RelayState
+Giver ikke problemer med SOP/CORS
+Kan ikke lade sig gøre, hvis IdP kræver signeret requests. 
+Konsekvens: Brugerens skal logge ind igen når SAML Token udløbet, og UI bliver nulstillet hvis brugeren 
+er igang med at bruge løsningen, når SAML Token udløber.
+
+"""
