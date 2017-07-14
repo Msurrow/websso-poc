@@ -4,10 +4,6 @@
 	<script src="/static/webclient.js"></script>
 	<script>
 		var user_token = '{{ token }}';
-		if (user_token) {
-			rsnode = document.getElementById("ResponseWindow");
-			rsnode.innerText = "Vi er logget ind! Token er: "+user_token
-		}
 	</script>
 </head>
 <body>
@@ -15,6 +11,7 @@
 	<span>Dette er en forside.
 	Tryk på knappen for at hente noget data fra KAI-Servicen. Hvis du ikke er logget ind vil du blive automatisk viderestillet til IdP'en for login.
 	</span>
+	<span id="harToken"></span>
 	<br/></br>
 	<button id='hentDataButton'>Hent noget data</button>
 	<br/>
