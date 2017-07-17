@@ -29,7 +29,7 @@ $(document).ready(function(){
 				rsnode.value = "http://localhost:8000/login_complete" //<-- SET RELAY_STATE
 				DOM_rep_window.appendChild(document.createElement("hr"));
 				var newnode = document.createElement("span");
-				newnode.innerText = "Her vises det få respons fra service provider:";
+				newnode.innerText = "Her vises det rå respons fra service provider:";
 				DOM_rep_window.appendChild(newnode);
 				newnode = document.createElement("span");
 				newnode.innerText = data;

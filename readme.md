@@ -93,7 +93,7 @@ I file ```helpers.py``` findes funktionen der lave AuthnRequest'et. Attributten 
 ## Sikkerhedsmodel i Service Provider<a name="sikkerhedsmodel"></a>
 **Nedenstående udgør et _eksempel_ på, hvordan sikkerhedsmodellen i Service Provideren _kan_ implementeres. Til løsningen skal vælges den implementering der passer bedst til løsningen og projektet.**
 
-```service_provider_poc.py``` udgør i denne PoC Service Provideren og requests til API endpoints kræver at request'eren har autentificeret sig overfor Service Provider. Autentifikationen sker ved brug af SAML WebSSO profil sammen med en "ekstern" IdP. 
+```service_provider_poc.py``` udgør i denne PoC Service Provideren og requests til API endpoints kræver at request'eren har autentificeret sig overfor Service Provider. Autentifikationen sker ved brug af SAML WebSSO profil (se [[SAML-profile]](#referencer)) sammen med en "ekstern" IdP. 
 
 WebSSO profilen resuterer i at requester'en kan præsentere en gyldig SAML Assertion for Service Provideren. Denne SAML Assertion bruger Service Provideren til at autentificere brugeren og give adgang. 
 
@@ -195,15 +195,14 @@ Element | Beskrivelse | Sammenhæng til Metadata
 ### Sammenhæng mellem komponenter (request-login-response flow)
 Sekvens af kald i det samlede setup foregår sådan:
 
-1. Bruger (via browser) åbner webklient siden:
- - 	```=> GET på '/' til Web-frontend server.```
+- Bruger (via browser) åbner webklient siden:
+    - 	```=> GET på '/' til Web-frontend server.```
 - Web-frontend server svarer med html+javascript for client-side app
- - ```=> HTTP 200, sender index.html + webclient.js```
+    - ```=> HTTP 200, sender index.html + webclient.js```
 - Bruger/Browser trykker på "Hent data"-knap i brugergrænseflade. Javascript webklient laver AJAX-request til Service Provider API endpoint for at få data.
- - ```=> GET http://websoo-poc.herokuapp.com/kai-themes```
+    - ```=> GET http://websoo-poc.herokuapp.com/kai-themes```
 - Service Provider tjekker om brugeren sender autentifikation i request. Brugeren har ikke endnu autentificeret sig, så derfor er autentifikation ikke del af request (ingen sikkerheds kontekst). Service Provider svarer med XHTML-form der indeholder SAML ```AuthnRequest```.
- - => Sender XHTML-form retur i data del af HTTP response: 
-
+    - => Sender XHTML-form retur i data del af HTTP response: 
  ```
  <form method="post" action="{}">
 	<input type="hidden" name="SAMLRequest" value="{}" />
@@ -211,7 +210,7 @@ Sekvens af kald i det samlede setup foregår sådan:
 	<input type="submit" value="Login" />
 </form>
 ```
- - => HTML-formen indeholder tre relevante elementer: 
+    - => HTML-formen indeholder tre relevante elementer: 
 
 Elemet | Attribut | Beskrivelse
 ------ | -------- | -----------
@@ -221,9 +220,9 @@ Elemet | Attribut | Beskrivelse
 
 - Webklient modtager svar fra Service Provider, identificere at der kom et SAML AuthnRequest retur (evt via HTTP response kode) i form af XHTML-form. Webklient viser XHTML-form for brugeren. Brugern kan trykke på "Login"-knappen.
 - XHTML-formens action-attribut indeholder url til IdP, hvorfor Webklienten ved tryk på "Login"-knap sender et POST request til IdP'en, med AuthnRequest som angivet i XHTML-formen (```input name="SAMLRequest" ```-attribut). RelayState (```input name="RelayState" ```-attribut) medsendes også - IdP'en anvender ikke denne til noget, men medsender den til Service Provider, efter login er gennemført. Bemærk vi sætter RelayState i webklienten, som beskrevet ovenfor. 
- - ```=> POST til https://idp.testshib.org/idp/profile/SAML2/POST/SSO?SAMLRequest=<AuthnRequest_b64_encoded>&RelayState=http://localhost:8000/login_complete```
+    - ```=> POST til https://idp.testshib.org/idp/profile/SAML2/POST/SSO?SAMLRequest=<AuthnRequest_b64_encoded>&RelayState=http://localhost:8000/login_complete```
 - IdP laver login forløb med browser/brugeren. Efter successfuld login genererer IdP'en en ```SAML Response```, indeholdende ```SAML Assertion```, som beviser brugerens autenticitet. IdP'en laver en POST request til Service Provideren på den url, der er angivet i hhv. metadata og ```AuthnRequest```.
- - ```=> POST til http://websso-poc.herokuapp.com/kai-themes``` med ```SAMLResponse``` og ```RelayState``` i request form-data (```Content-Type: application/x-www-form-urlencoded```).
+    - ```=> POST til http://websso-poc.herokuapp.com/kai-themes``` med ```SAMLResponse``` og ```RelayState``` i request form-data (```Content-Type: application/x-www-form-urlencoded```).
 - Service Provider modtager POST request fra IdP og behandler. I eksemplet er det handleren for endpoint ```/kai-themes```. Da POST request nu indeholder et gyldig ```SAML Response```, generere Service Provider en token. Service Provider læser også ```RelayState``` og token returneres til Webfront-end server, på det endpoint der er angivet i RelayState (her ```http://localhost:8000/login_complete?token=<genereret_token>```).
 - Web-frontend Serveren modtager token via request og viser siden til brugeren hvor denne er logget ind. Brugeren kan nu bruge "Hent data" knappen igen, til at hente data fra Service Provideren.
 
