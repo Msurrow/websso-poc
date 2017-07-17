@@ -202,8 +202,7 @@ Sekvens af kald i det samlede setup foregår sådan:
 - Bruger/Browser trykker på "Hent data"-knap i brugergrænseflade. Javascript webklient laver AJAX-request til Service Provider API endpoint for at få data.
     - ```=> GET http://websoo-poc.herokuapp.com/kai-themes```
 - Service Provider tjekker om brugeren sender autentifikation i request. Brugeren har ikke endnu autentificeret sig, så derfor er autentifikation ikke del af request (ingen sikkerheds kontekst). Service Provider svarer med XHTML-form der indeholder SAML ```AuthnRequest```.
-    - => Sender XHTML-form retur i data del af HTTP response: 
- ```
+    - => Sender XHTML-form retur i data del af HTTP response:  ```
  <form method="post" action="{}">
 	<input type="hidden" name="SAMLRequest" value="{}" />
 	<input type="hidden" name="RelayState" value="" />
@@ -223,10 +222,13 @@ Elemet | Attribut | Beskrivelse
     - ```=> POST til https://idp.testshib.org/idp/profile/SAML2/POST/SSO?SAMLRequest=<AuthnRequest_b64_encoded>&RelayState=http://localhost:8000/login_complete```
 - IdP laver login forløb med browser/brugeren. Efter successfuld login genererer IdP'en en ```SAML Response```, indeholdende ```SAML Assertion```, som beviser brugerens autenticitet. IdP'en laver en POST request til Service Provideren på den url, der er angivet i hhv. metadata og ```AuthnRequest```.
     - ```=> POST til http://websso-poc.herokuapp.com/kai-themes``` med ```SAMLResponse``` og ```RelayState``` i request form-data (```Content-Type: application/x-www-form-urlencoded```).
-- Service Provider modtager POST request fra IdP og behandler. I eksemplet er det handleren for endpoint ```/kai-themes```. Da POST request nu indeholder et gyldig ```SAML Response```, generere Service Provider en token. Service Provider læser også ```RelayState``` og token returneres til Webfront-end server, på det endpoint der er angivet i RelayState (her ```http://localhost:8000/login_complete?token=<genereret_token>```).
+- Service Provider modtager POST request fra IdP og behandler. I eksemplet er det handleren for endpoint ```/kai-themes```. Da POST request nu indeholder et gyldig ```SAML Response```, generere Service Provider en token. Service Provider læser også ```RelayState``` og token returneres til Webfront-end server, på det endpoint der er angivet i RelayState.
+    - ```=> Redirect 302 Location: http://localhost:8000/login_complete?token=<genereret_token>```
+- Browser følger redirect
+    - ```=> GET http://localhost:8000/login_complete?token=<genereret_token>```
 - Web-frontend Serveren modtager token via request og viser siden til brugeren hvor denne er logget ind. Brugeren kan nu bruge "Hent data" knappen igen, til at hente data fra Service Provideren.
 
-#### RelayState
+#### RelayState SLET MIG
 
 I Poc'en er ```RelayState``` kun brugt til at afsluttet forløbet med at vise ```index.html``` med token hentet. ```RelayState``` kunne lige så vel bruges til at gemme Webklientens faktiske state, sådan at ```/login_complete``` endpointet kunne 
 
