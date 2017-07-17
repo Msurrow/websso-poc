@@ -1,5 +1,5 @@
 def generate_SAML_AuthnRequest():
-	saml_authnrequest_template = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><samlp:AuthnRequest xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" AssertionConsumerServiceURL=\"http://websso-poc.herokuapp.com/kai-themes\" IssueInstant=\"{}\" ID=\"a{}\" > <saml:Issuer >websso-poc.herokuapp.com</saml:Issuer> </samlp:AuthnRequest >"
+	saml_authnrequest_template = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><samlp:AuthnRequest xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" AssertionConsumerServiceURL=\"http://websso-poc.herokuapp.com/kai-themes\" IssueInstant=\"{}\" ID=\"a{}\" > <saml:Issuer >msurrow_websso</saml:Issuer> </samlp:AuthnRequest >"
 	return saml_authnrequest_template
 
 	""" 

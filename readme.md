@@ -24,6 +24,7 @@ PoC'en er skrevet i Python og HTML+Javascript (jquery). Python er valgt fordi de
 I både ```service_provider_poc.py``` og ```frontend_server_poc.py``` er Flask mini-frameworket anvendt til at lave web-serveren. Flask er et lille og intuitivt framework, der er hurtigt at for overblik over også selvom man ikke tidligere har arbejdet med det. Mere om [Flask](http://flask.pocoo.org/).
 
 ## Arkitekturoverlik<a name="diagram"></a>
+Se diagram vedlagt mail.
 
 ## Install, deploy og anvendelse
 Der er to komponenter der skal deployes før PoC'en kan afprøves:
