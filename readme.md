@@ -4,8 +4,8 @@ Denne PoC er lavet, for at sikre den valgte arkitektur i løsningen passer samme
 
 ## Overblik
 PoC'en indeholder:
-Komponent | Fil | Beskrivelse
-----------|-----|------------
+Komponent  | Fil   | Beskrivelse
+---------- | ----- |------------
 Service Provider | service_provider_poc.py | Et eksempel Service Provider, som udstiller en API hvorfra JSON data kan hentes.
 Web-frontend Server | webapp/frontend_server_poc.py | Foobar
 
