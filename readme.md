@@ -1,4 +1,5 @@
 # WebSSO Proof-of-Concept (PoC)
+Med PoC'en kan man gennemføre et end-to-end scenarie, der består i at åben af webklient-side, hente data fra API'et, blive redirected til IdP og gennemføre login. Efter login sendes man tilbage til webklienten og data kan hentes fra API, som vises i webklient.
 
 Denne PoC er lavet, for at sikre den valgte arkitektur i løsningen passer sammen med SAML2.0 WebSSO med POST bindings på et teknisk niveau. Derudover er et sekundært formål at give et simpelt eksempel på, hvordan sikkerhedsarkitekturen kan virke til brug for fælles forståelse i projektet.
 
