@@ -210,7 +210,7 @@ Sekvens af kald i det samlede setup foregår sådan:
 	<input type="submit" value="Login" />
 </form>
 ```
-
+.
     
     - => HTML-formen indeholder tre relevante elementer: 
 
