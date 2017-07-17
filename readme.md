@@ -212,7 +212,7 @@ Sekvens af kald i det samlede setup foregår sådan:
 ```
 
     
-- => HTML-formen indeholder tre relevante elementer: 
+    - => HTML-formen indeholder tre relevante elementer: 
 
 Elemet | Attribut | Beskrivelse
 ------ | -------- | -----------
