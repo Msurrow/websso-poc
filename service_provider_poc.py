@@ -4,13 +4,12 @@ import base64,uuid
 import sys
 from time import gmtime, strftime
 from bs4 import BeautifulSoup
+import helpers
 
 app = Flask(__name__)
 CORS(app)
 
 idp_url = "https://idp.testshib.org/idp/profile/SAML2/POST/SSO"
-
-saml_authnrequest_template = "<samlp:AuthnRequest xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" AssertionConsumerServiceURL=\"http://websso-poc.herokuapp.com/kai-themes\" IssueInstant=\"{}\" ID=\"a{}\" > <saml:Issuer > websso-poc.herokuapp.com </saml:Issuer> </samlp:AuthnRequest >"
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -63,6 +62,7 @@ def kai_themes():
 
 			issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
 			#msg_id = str(uuid.uuid1())
+			saml_authnrequest_template = helpers.generate_SAML_AuthnRequest()
 			saml_authnrequest = saml_authnrequest_template.format(issueInstant,issueInstant) #UUID as ID gave problems. timestamp is unique enough for this PoC (one message per second)
 			saml_authnrequest_encoded = base64.b64encode(bytes(saml_authnrequest, 'utf-8')).decode('utf-8')
 
