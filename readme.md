@@ -202,7 +202,7 @@ Sekvens af kald i det samlede setup foregår sådan:
 - Bruger/Browser trykker på "Hent data"-knap i brugergrænseflade. Javascript webklient laver AJAX-request til Service Provider API endpoint for at få data.
     - ```=> GET http://websoo-poc.herokuapp.com/kai-themes```
 - Service Provider tjekker om brugeren sender autentifikation i request. Brugeren har ikke endnu autentificeret sig, så derfor er autentifikation ikke del af request (ingen sikkerheds kontekst). Service Provider svarer med XHTML-form der indeholder SAML ```AuthnRequest```.
-    - => Sender XHTML-form retur i data del af HTTP response:
+    - => Sender XHTML-form retur i data del af HTTP response. Under XML beskrives de tre tre relevante elementer, som XHTML-formen indeholder:
  ```xml
  <form method="post" action="{}">
 	<input type="hidden" name="SAMLRequest" value="{}" />
@@ -210,9 +210,6 @@ Sekvens af kald i det samlede setup foregår sådan:
 	<input type="submit" value="Login" />
 </form>
 ```
-.
-    
-    - => HTML-formen indeholder tre relevante elementer: 
 
 Elemet | Attribut | Beskrivelse
 ------ | -------- | -----------
