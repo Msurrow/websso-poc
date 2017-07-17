@@ -213,8 +213,8 @@ Sekvens af kald i det samlede setup foregår sådan:
 ```
  - => HTML-formen indeholder tre relevante elementer: 
 
-		Elemet | Attribut | Beskrivelse
-		------ | -------- | -----------
+Elemet | Attribut | Beskrivelse
+------ | -------- | -----------
 ```form ``` | ```action``` | Indeholder IdP'ens URL, som POST request sendes til. I eksemplet anvendes: <https://idp.testshib.org/idp/profile/SAML2/POST/SSO>. Heri bestemmes hvordan der omstilles til den korrekt login side. Se detaljer for POST-binding i [SAML-bindings].
 ```input name="SAMLRequest" ``` | ```value``` | Indeholder den SAML AuthnRequest, som Service Provideren har genereret (se AuthnRequest XML ovenfor). Base-64 encoded. Se detaljer for AuthnRequest i [SAML-Core].
 ```input name="RelayState" ``` | ```value``` | ReplayState kan anvendes til at "gemme" state fra inden serveren satte SAML login forløb igang (dvs. omstilling til IdP). Heri gemmer vi det endpoint, som vores Web-frontend server har, der kan håndtere modtagelsen af token fra Service Provider. I eksemplet her sættes RelayState i webklienten (se [```webclient.js```](https://github.com/Msurrow/websso-poc/blob/master/webapp/static/webclient.js)). RelayState endpoint sættes til <http://localhost:8000/login_complete>, da Webfront-end Serveren kører på localhost, og login_complete er lavet til at håndtere modtagelsen af en token.
