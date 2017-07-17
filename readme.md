@@ -9,7 +9,7 @@ PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmode
 - [Overblik](#overblik)
 - [Arkitektur Overblik](#diagram)
 - [Installation, deploy og anvendelse](#deploy)
-- [Sikkerhedsmodel i Service Provider](#sikkhedsmodel)
+- [Sikkerhedsmodel i Service Provider](#sikkerhedsmodel)
 - [Gennegemgang af relevante tekniske implementationsdetaljer](#tekniskedetaljer)
 - [Referencer](#referencer)
 - [10 second guide til installation af Python og dependencies](#deps)
@@ -115,8 +115,8 @@ Forholdene mellem komponenter kan illustreres sådan (bemærk dette er ikke det 
   | |
   | |
   | |
-  | |
-+-+-v---------------+  Her er en SAML Assertion    +-----------------------+
+  | v
++-+-----------------+  Her er en SAML Assertion    +-----------------------+
 |                   | +------------------------->  |                       |
 |  Service Consumer |                              |  Service Provider     |
 |  (webklient)      | <-------------------------+  |  (API)                |
@@ -154,23 +154,82 @@ En token kunne i JSON se ud som følger (alternativt kan token base-64 encodes o
 }
 ```
 
-Herved kan det nemt tjekkes, om en token forsat er gyldig, ved blot at se på timestamp for udstedelse + ønsket levetid til og sammenligne med timestamp for "nu".
-Tokenen (og timestamp) kan valideres ved at (gen)beregne hash af ```data + timestamp_udstedese``` med serverens secret\_key, da secret\_key er krævet for at lave en hash med et timestamp, der er forskellige fra det, der var i den originale token udstedt af serveren.
+Herved kan det nemt tjekkes, om en token forsat er gyldig, ved blot at se på timestamp for udstedelse + lægge ønsket levetid til og sammenligne med timestamp for "nu".
+Tokenen (og timestamp) kan valideres ved at (gen)beregne hash af ```data + timestamp_udstedese``` med serverens secret\_key, da secret\_key er krævet for at lave en hash med et timestamp, der er forskellige fra det, der var i den originale token udstedt af serveren. Hvis en adversary forsøger at ændre ved tokens levetid (timestamp) eller data (fx username,roller m.v.) vil den genberegnede hash ikke stemme med hash'en i tokenen. 
 
 ####CORS
 Med POST bindings returnere Service Provider en XHTML-form (se kildekode), med en Submit-knap, der sender request til IdP'en, som den kaldende javascript i webklienten kan vise til brugeren. Da request til IdP'en sker via en html-form og ikke fra javascript, rammes dette ikke af Same-Origin Policy og CORS er ikke nødvendigt.
 
 ## Gennegemgang af relevante tekniske implementationsdetaljer <a name="tekniskedetaljer"></a>
-metadata AssertionConsumerService endpoints | authnrequest AssertionConsumerServiceURL
-metadata entityID | authnrequest issuer
 
-idp-post url (deliver SAML token). kan kun være 1 url og vi kan oprindeligt have ramt mange endpoints
+**Husk** at PoC'ens xml - dvs. metatada, saml requests + responses kun indeholder minimum for at eksemplet virker, og holder dermed ikke god SAML standarderne til fulde). For korrekt specifikation, herunder processerings regler, henvises til [[SAML-Core]](#referencer), [[SAML-Profiles]](#referencer), [[SAML-Bindings]](#referencer).
 
-req til /kai-themes
-xhtml-form retur
-relaystate
-håndtering af relaystate
+Først gennemgås de steder hvor relevate tekniske attributter, urls etc. sættes. Herefter gennegåes hvordan det hele kædes sammen.
 
+### Metadata (se [```service_provider_metadata_kai_sso_poc.xml```](https://github.com/Msurrow/websso-poc/blob/master/service_provider_metadata_kai_sso_poc.xml))
+I Service Provider metadata sættes to ting, der er relevante for det tekniske flow vi bygger:
+
+- ```entityID``` sættes i ```EntityDescriptor``` elementet
+- Service Provider endpoints sættes i ```AssertionConsumerService``` elementet, ```Location``` attributten
+
+Element | Beskrivelse
+------- | -----------
+```entityID``` | Navn på Service Provideren. I eksemplet er websso-poc.herokuapp.com brugt
+```AssertionConsumerService``` | Endpoints som IdP'en skal redirect til efter successfuld login. I eksemplet er der indsat tre, men kun <http://websso-poc.herokuapp.com/kai-themes> anvendes.
+
+### AuthnRequest XML (se [```helpers.py```](https://github.com/Msurrow/websso-poc/blob/master/helpers.py))
+I AuthnRequest XML sættes følgende værdier:
+
+- ```IssueInstant``` attributten sættes i ```AuthnRequest``` elementet
+- ```ID``` attributten sættes i ```AuthnRequest``` elementet
+- ```AssertionConsumerServiceURL ``` attributten sættes i ```AuthnRequest``` elementet
+- ```Issuer``` elementet sættes
+
+Element | Beskrivelse | Sammenhæng til Metadata
+------- | ----------- | --------------------
+```IssueInstant ``` | UTC Timestamp i ISO format. Skal ved hvert request ellers afvises request ved IdP. |Ingen
+```ID ``` | Unikt ID på requests. Skal ved hvert request ellers afvises request ved IdP |Ingen
+```AssertionConsumerServiceURL``` | Endpoint some IdP skal redirect til ved successfuld login _for dette request__. |Skal være én af endpoints defineret i ```AssertionConsumerService``` i metadata (se ovenfor).
+```Issuer``` | Navn på Service Provider. |Skal være det samme som ```entityID``` defineret i metadata (se ovenfor).
+
+### Sammenhæng mellem komponenter (request-login-response flow)
+Sekvens af kald i det samlede setup foregår sådan:
+
+1. Bruger (via browser) åbner webklient siden:
+ - 	```=> GET på '/' til Web-frontend server.```
+- Web-frontend server svarer med html+javascript for client-side app
+ - ```=> HTTP 200, sender index.html + webclient.js```
+- Bruger/Browser trykker på "Hent data"-knap i brugergrænseflade. Javascript webklient laver AJAX-request til Service Provider API endpoint for at få data.
+ - ```=> GET http://websoo-poc.herokuapp.com/kai-themes```
+- Service Provider tjekker om brugeren sender autentifikation i request. Brugeren har ikke endnu autentificeret sig, så derfor er autentifikation ikke del af request (ingen sikkerheds kontekst). Service Provider svarer med XHTML-form der indeholder SAML ```AuthnRequest```.
+ - => Sender XHTML-form retur i data del af HTTP response: 
+
+ ```
+ <form method="post" action="{}">
+	<input type="hidden" name="SAMLRequest" value="{}" />
+	<input type="hidden" name="RelayState" value="" />
+	<input type="submit" value="Login" />
+</form>
+```
+ - => HTML-formen indeholder tre relevante elementer: 
+
+		Elemet | Attribut | Beskrivelse
+		------ | -------- | -----------
+```form ``` | ```action``` | Indeholder IdP'ens URL, som POST request sendes til. I eksemplet anvendes: <https://idp.testshib.org/idp/profile/SAML2/POST/SSO>. Heri bestemmes hvordan der omstilles til den korrekt login side. Se detaljer for POST-binding i [SAML-bindings].
+```input name="SAMLRequest" ``` | ```value``` | Indeholder den SAML AuthnRequest, som Service Provideren har genereret (se AuthnRequest XML ovenfor). Base-64 encoded. Se detaljer for AuthnRequest i [SAML-Core].
+```input name="RelayState" ``` | ```value``` | ReplayState kan anvendes til at "gemme" state fra inden serveren satte SAML login forløb igang (dvs. omstilling til IdP). Heri gemmer vi det endpoint, som vores Web-frontend server har, der kan håndtere modtagelsen af token fra Service Provider. I eksemplet her sættes RelayState i webklienten (se [```webclient.js```](https://github.com/Msurrow/websso-poc/blob/master/webapp/static/webclient.js)). RelayState endpoint sættes til <http://localhost:8000/login_complete>, da Webfront-end Serveren kører på localhost, og login_complete er lavet til at håndtere modtagelsen af en token.
+
+- Webklient modtager svar fra Service Provider, identificere at der kom et SAML AuthnRequest retur (evt via HTTP response kode) i form af XHTML-form. Webklient viser XHTML-form for brugeren. Brugern kan trykke på "Login"-knappen.
+- XHTML-formens action-attribut indeholder url til IdP, hvorfor Webklienten ved tryk på "Login"-knap sender et POST request til IdP'en, med AuthnRequest som angivet i XHTML-formen (```input name="SAMLRequest" ```-attribut). RelayState (```input name="RelayState" ```-attribut) medsendes også - IdP'en anvender ikke denne til noget, men medsender den til Service Provider, efter login er gennemført. Bemærk vi sætter RelayState i webklienten, som beskrevet ovenfor. 
+ - ```=> POST til https://idp.testshib.org/idp/profile/SAML2/POST/SSO?SAMLRequest=<AuthnRequest_b64_encoded>&RelayState=http://localhost:8000/login_complete```
+- IdP laver login forløb med browser/brugeren. Efter successfuld login genererer IdP'en en ```SAML Response```, indeholdende ```SAML Assertion```, som beviser brugerens autenticitet. IdP'en laver en POST request til Service Provideren på den url, der er angivet i hhv. metadata og ```AuthnRequest```.
+ - ```=> POST til http://websso-poc.herokuapp.com/kai-themes``` med ```SAMLResponse``` og ```RelayState``` i request form-data (```Content-Type: application/x-www-form-urlencoded```).
+- Service Provider modtager POST request fra IdP og behandler. I eksemplet er det handleren for endpoint ```/kai-themes```. Da POST request nu indeholder et gyldig ```SAML Response```, generere Service Provider en token. Service Provider læser også ```RelayState``` og token returneres til Webfront-end server, på det endpoint der er angivet i RelayState (her ```http://localhost:8000/login_complete?token=<genereret_token>```).
+- Web-frontend Serveren modtager token via request og viser siden til brugeren hvor denne er logget ind. Brugeren kan nu bruge "Hent data" knappen igen, til at hente data fra Service Provideren.
+
+#### RelayState
+
+I Poc'en er ```RelayState``` kun brugt til at afsluttet forløbet med at vise ```index.html``` med token hentet. ```RelayState``` kunne lige så vel bruges til at gemme Webklientens faktiske state, sådan at ```/login_complete``` endpointet kunne 
 
 ## Referencer <a name="referencer"></a>
 
@@ -213,3 +272,15 @@ Installer dependencies med PIP:
 
 Done.
 
+## Debugging
+### IdP
+Hvis IdP'en giver følgende fejl:
+
+```
+SAML 2 SSO Profile is not configured for ...
+```
+
+Tjek da at:
+
+- SP metadata er uploaded til IdP via registreringssiden
+- "valid until" attributten i metadata

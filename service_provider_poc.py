@@ -67,10 +67,11 @@ def kai_themes():
 			saml_authnrequest_encoded = base64.b64encode(bytes(saml_authnrequest, 'utf-8')).decode('utf-8')
 
 			return '''
+				<b>Du er ikke logget ind! Tryk på login-knappen nedenfor for at blive viderestillet til login-siden</b>
 				<form method="post" action="{}">
 					<input type="hidden" name="SAMLRequest" value="{}" />
 					<input type="hidden" name="RelayState" value="" />
-					<input type="submit" value="Submit" />
+					<input type="submit" value="Login" />
 				</form>
 			'''.format(idp_url,saml_authnrequest_encoded)
 

@@ -26,7 +26,7 @@ $(document).ready(function(){
 				// This is where we modify the RelayState to tell the server where to redirect upon getting
 				// SAML Response from IdP
 				rsnode = document.getElementsByName("RelayState")[0];
-				rsnode.value = "http://localhost:8000/login_complete"
+				rsnode.value = "http://localhost:8000/login_complete" //<-- SET RELAY_STATE
 				DOM_rep_window.appendChild(document.createElement("hr"));
 				var newnode = document.createElement("span");
 				newnode.innerText = "Her vises det få respons fra service provider:";
