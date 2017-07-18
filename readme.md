@@ -7,7 +7,6 @@ PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmode
 
 ## Indhold
 - [Overblik](#overblik)
-- [Arkitektur Overblik](#diagram)
 - [Installation, deploy og anvendelse](#deploy)
 - [Sikkerhedsmodel i Service Provider](#sikkerhedsmodel)
 - [Gennegemgang af relevante tekniske implementationsdetaljer](#tekniskedetaljer)
@@ -31,9 +30,6 @@ IdP (Identity Provider) |Som test IdP anvendes [Shibboleths test IdP](https://ww
 PoC'en er skrevet i Python og HTML+Javascript (jquery). Python er valgt fordi det hurtigt at lave PoCs som denne og ikke mindst fordi det er let læseligt, uanset hvilke teknologisk baggrund man kommer med.
 
 I både ```service_provider_poc.py``` og ```frontend_server_poc.py``` er Flask mini-frameworket anvendt til at lave web-serveren. Flask er et lille og intuitivt framework, der er hurtigt at for overblik over også selvom man ikke tidligere har arbejdet med det. Mere om [Flask](http://flask.pocoo.org/).
-
-## Arkitekturoverlik <a name="diagram"></a>
-Se diagram vedlagt mail. Offentliggøres ikke her af sikkerhedsmæssige hensyn.
 
 ## Install, deploy og anvendelse <a name="deploy"></a>
 Der er to komponenter der skal deployes før PoC'en kan afprøves:
@@ -136,7 +132,6 @@ Forholdene mellem komponenter kan illustreres sådan (bemærk dette er ikke det 
 
 ```
 
-Se [Arkitekturoverblik](#diagram) for detaljer.
 
 #### Bemærkning om generering af token
 En tidsbegrænset token kan genereres ved at lade token bestå af:

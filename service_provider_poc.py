@@ -41,7 +41,6 @@ def handle_saml_response():
 	print("POST request headers:\n{}\nPOST request form:\n{}\nPOST request args:\n{}\n".format(request.headers, list(request.form.items()), list(request.args.items())))
 	
 	saml_response = request.form.get('SAMLResponse')
-	print("TEST SAML RESP BOOL: {}".format(bool(saml_response)))
 	relay_state = request.form.get('RelayState')
 
 	# Check if there is a SAML token in the request
@@ -61,7 +60,7 @@ def handle_saml_response():
 		token = "super_secret_token_beloging_to_{}".format(saml_subject_name)
 		
 		# Redirect to the server in RelayState with token (assumes frontendserver set the RelayState correct)
-		return redirect(relay_state+"?token="+token)
+		return redirect(relay_state+"?token="+token+"&"+"relayState=nothing_here")
 	else:
 		# Expected SAML Response but found none.
 		return abort(400)
