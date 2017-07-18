@@ -1,5 +1,4 @@
 import base64,uuid
-import sys
 from time import gmtime, strftime
 
 def generate_SAML_AuthnRequest():

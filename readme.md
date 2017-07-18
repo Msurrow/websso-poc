@@ -175,7 +175,7 @@ I Service Provider metadata sættes to ting, der er relevante for det tekniske f
 Element | Beskrivelse
 ------- | -----------
 ```entityID``` | Navn på Service Provideren. I eksemplet er websso-poc.herokuapp.com brugt
-```AssertionConsumerService``` | Endpoints som IdP'en skal redirect til efter successfuld login. I eksemplet er der indsat tre, men kun <http://websso-poc.herokuapp.com/kai-themes> anvendes.
+```AssertionConsumerService``` | Endpoints som IdP'en skal redirect til efter successfuld login. I eksemplet er der indsat tre, men kun <http://websso-poc.herokuapp.com/saml_login_success> anvendes.
 
 ### AuthnRequest XML (se [```helpers.py```](https://github.com/Msurrow/websso-poc/blob/master/helpers.py))
 I AuthnRequest XML sættes følgende værdier:
