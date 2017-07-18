@@ -9,7 +9,7 @@ PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmode
 - [Overblik](#overblik)
 - [Installation, deploy og anvendelse](#deploy)
 - [Sikkerhedsmodel i Service Provider](#sikkerhedsmodel)
-- [Gennegemgang af relevante tekniske implementationsdetaljer](#tekniskedetaljer)
+- [Gennemgang af relevante tekniske implementationsdetaljer](#tekniskedetaljer)
 - [Referencer](#referencer)
 - [10 second guide til installation af Python og dependencies](#deps)
 
@@ -155,7 +155,7 @@ Tokenen (og timestamp) kan valideres ved at (gen)beregne hash af ```data + times
 #### CORS
 Med POST bindings [[SAML-bindings]](#referencer) returnere Service Provider en XHTML-form (se kildekode), med en Submit-knap, der sender request til IdP'en, som den kaldende javascript i webklienten kan vise til brugeren. Da request til IdP'en sker via en html-form og ikke fra javascript, rammes dette ikke af Same-Origin Policy og CORS er ikke nødvendigt.
 
-## Gennegemgang af relevante tekniske implementationsdetaljer <a name="tekniskedetaljer"></a>
+## Gennemgang af relevante tekniske implementationsdetaljer <a name="tekniskedetaljer"></a>
 
 **Husk** at PoC'ens xml - dvs. metatada, saml requests + responses kun indeholder minimum for at eksemplet virker, og holder dermed ikke god SAML standarderne til fulde). For korrekt specifikation, herunder processerings regler, henvises til [[SAML-Core]](#referencer), [[SAML-Profiles]](#referencer), [[SAML-Bindings]](#referencer).
 
