@@ -228,9 +228,9 @@ Elemet | Attribut | Beskrivelse
     - ```=> GET http://localhost:8000/login_complete?token=<genereret_token>```
 - Web-frontend Serveren modtager token via request og viser siden til brugeren hvor denne er logget ind. Brugeren kan nu bruge "Hent data" knappen igen, til at hente data fra Service Provideren.
 
-#### RelayState SLET MIG
+#### RelayState
 
-I Poc'en er ```RelayState``` kun brugt til at afsluttet forløbet med at vise ```index.html``` med token hentet. ```RelayState``` kunne lige så vel bruges til at gemme Webklientens faktiske state, sådan at ```/login_complete``` endpointet kunne 
+I Poc'en er ```RelayState``` kun brugt til at afsluttet forløbet med at vise ```index.html``` med token hentet. ```RelayState``` kunne lige så vel bruges til at gemme Webklientens faktiske state, sådan at ```/login_complete``` endpointet kunne fortsætte med det oprindelige API kald, der satte SAML login processen igang. 
 
 ## Referencer <a name="referencer"></a>
 

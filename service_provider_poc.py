@@ -41,6 +41,7 @@ def handle_saml_response():
 	print("POST request headers:\n{}\nPOST request form:\n{}\nPOST request args:\n{}\n".format(request.headers, list(request.form.items()), list(request.args.items())))
 	
 	saml_response = request.form.get('SAMLResponse')
+	print("TEST SAML RESP BOOL: {}".format(bool(saml_response)))
 	relay_state = request.form.get('RelayState')
 
 	# Check if there is a SAML token in the request
