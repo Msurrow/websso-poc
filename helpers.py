@@ -1,6 +1,8 @@
 import base64,uuid
 from time import gmtime, strftime
 
+idp_url = "https://idp.testshib.org/idp/profile/SAML2/POST/SSO"
+
 def generate_SAML_AuthnRequest():
 	saml_authnrequest_template = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><samlp:AuthnRequest xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" AssertionConsumerServiceURL=\"http://websso-poc.herokuapp.com/saml_login_success\" IssueInstant=\"{}\" ID=\"a{}\" > <saml:Issuer >websso-poc.herokuapp.com</saml:Issuer> </samlp:AuthnRequest >"
 	return saml_authnrequest_template
@@ -29,6 +31,7 @@ def generate_SAML_AuthnRequest():
 Function for validating tokens. Faked in this PoC.
 """
 def validate_token(token):
+	raise Exception
 	# We fake it here. See readme for details on what _can_ be done with
 	# tokens.
 	print("Endpoint called with token {}, which upon critical inspection seems valid.".format(token))
@@ -49,17 +52,24 @@ def decode_and_decrypt_response(SAML_response):
 
 """
 Does authentication of a request ("check for existing security context" in SAML terms).
-- If the request contains a Token, the token is validated.
-- If the request does not contain a Token, the SAML WebSSO profile process is started, that is, the 
-	client is redirected to the IdP.
+If the request contains a token, the token is validated. If the request does not contain
+a Token, it's the same as an invalid token.
 """
 def do_authentication(request):
 	token = request.args['token']
+	print("token: {}".format(token))
+
 	if token:
 		validate_token(token)
 		# Client has a valid token and is logged in
-		return true
+		return True
 	else:
+		return False
+
+"""
+Builds the SAML AuthnRequest
+"""
+def get_SAML_AuthnRequest():
 		# Client do not have a token. Start SAML login procedure
 		# Respond with SAML AuthnRequest through SAML POST binding.
 

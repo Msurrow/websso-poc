@@ -7,7 +7,6 @@ import helpers
 app = Flask(__name__)
 CORS(app)
 
-idp_url = "https://idp.testshib.org/idp/profile/SAML2/POST/SSO"
 very_important_kai_data = ['KAI-Tema 01', 'KAI-Tema 02', 'KAI-Tema 03']
 
 """
@@ -30,7 +29,9 @@ def kai_themes():
 	# Check if client is logged in and if so return the requested data
 	if helpers.do_authentication(request):
 		return jsonify(very_important_kai_data)
-
+	else:
+		# Return SAML response to start login process
+		return helpers.get_SAML_AuthnRequest()
 """
 handle_saml_response -function handles SAML Responses POST'ed to the Service Provider
 from the IdP.
