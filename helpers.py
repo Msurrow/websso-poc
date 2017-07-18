@@ -1,3 +1,7 @@
+import base64,uuid
+import sys
+from time import gmtime, strftime
+
 def generate_SAML_AuthnRequest():
 	saml_authnrequest_template = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><samlp:AuthnRequest xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" AssertionConsumerServiceURL=\"http://websso-poc.herokuapp.com/saml_login_success\" IssueInstant=\"{}\" ID=\"a{}\" > <saml:Issuer >websso-poc.herokuapp.com</saml:Issuer> </samlp:AuthnRequest >"
 	return saml_authnrequest_template

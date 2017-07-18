@@ -1,8 +1,5 @@
 from flask import Flask, request, redirect, jsonify
 from flask_cors import CORS, cross_origin
-import base64,uuid
-import sys
-from time import gmtime, strftime
 from bs4 import BeautifulSoup
 import helpers
 
