@@ -65,7 +65,7 @@ def do_authentication(request):
 
 		issueInstant = strftime("%Y-%m-%dT%H:%M:%S", gmtime())
 		#msg_id = str(uuid.uuid1())
-		saml_authnrequest_template = helpers.generate_SAML_AuthnRequest()
+		saml_authnrequest_template = generate_SAML_AuthnRequest()
 		saml_authnrequest = saml_authnrequest_template.format(issueInstant,issueInstant) #UUID as ID gave problems. timestamp is unique enough for this PoC (one message per second)
 		saml_authnrequest_encoded = base64.b64encode(bytes(saml_authnrequest, 'utf-8')).decode('utf-8')
 

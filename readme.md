@@ -189,7 +189,7 @@ Element | Beskrivelse | Sammenhæng til Metadata
 ------- | ----------- | --------------------
 ```IssueInstant ``` | UTC Timestamp i ISO format. Skal ved hvert request ellers afvises request ved IdP. |Ingen
 ```ID ``` | Unikt ID på requests. Skal ved hvert request ellers afvises request ved IdP |Ingen
-```AssertionConsumerServiceURL``` | Endpoint some IdP skal redirect til ved successfuld login _for dette request__. |Skal være én af endpoints defineret i ```AssertionConsumerService``` i metadata (se ovenfor).
+```AssertionConsumerServiceURL``` | Endpoint some IdP skal redirect til ved successfuld login _for dette request_. |Skal være én af endpoints defineret i ```AssertionConsumerService``` i metadata (se ovenfor).
 ```Issuer``` | Navn på Service Provider. |Skal være det samme som ```entityID``` defineret i metadata (se ovenfor).
 
 ### Sammenhæng mellem komponenter (request-login-response flow)
@@ -221,7 +221,7 @@ Elemet | Attribut | Beskrivelse
 - XHTML-formens action-attribut indeholder url til IdP, hvorfor Webklienten ved tryk på "Login"-knap sender et POST request til IdP'en, med AuthnRequest som angivet i XHTML-formen (```input name="SAMLRequest" ```-attribut). RelayState (```input name="RelayState" ```-attribut) medsendes også - IdP'en anvender ikke denne til noget, men medsender den til Service Provider, efter login er gennemført. Bemærk vi sætter RelayState i webklienten, som beskrevet ovenfor. 
     - ```=> POST til https://idp.testshib.org/idp/profile/SAML2/POST/SSO?SAMLRequest=<AuthnRequest_b64_encoded>&RelayState=http://localhost:8000/login_complete```
 - IdP laver login forløb med browser/brugeren. Efter successfuld login genererer IdP'en en ```SAML Response```, indeholdende ```SAML Assertion```, som beviser brugerens autenticitet. IdP'en laver en POST request til Service Provideren på den url, der er angivet i hhv. metadata og ```AuthnRequest```.
-    - ```=> POST til http://websso-poc.herokuapp.com/kai-themes``` med ```SAMLResponse``` og ```RelayState``` i request form-data (```Content-Type: application/x-www-form-urlencoded```).
+    - ```=> POST til http://websso-poc.herokuapp.com/saml_login_success``` med ```SAMLResponse``` og ```RelayState``` i request form-data (```Content-Type: application/x-www-form-urlencoded```).
 - Service Provider modtager POST request fra IdP og behandler. I eksemplet er det handleren for endpoint ```/kai-themes```. Da POST request nu indeholder et gyldig ```SAML Response```, generere Service Provider en token. Service Provider læser også ```RelayState``` og token returneres til Webfront-end server, på det endpoint der er angivet i RelayState.
     - ```=> Redirect 302 Location: http://localhost:8000/login_complete?token=<genereret_token>```
 - Browser følger redirect
