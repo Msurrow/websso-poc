@@ -31,11 +31,10 @@ def generate_SAML_AuthnRequest():
 Function for validating tokens. Faked in this PoC.
 """
 def validate_token(token):
-	raise Exception
 	# We fake it here. See readme for details on what _can_ be done with
 	# tokens.
 	print("Endpoint called with token {}, which upon critical inspection seems valid.".format(token))
-	return true
+	return True
 
 """
 Function do base64-decode and decrypt the SAML Response from the (test) IdP.
@@ -60,9 +59,8 @@ def do_authentication(request):
 	print("token: {}".format(token))
 
 	if token:
-		validate_token(token)
-		# Client has a valid token and is logged in
-		return True
+		# Client has a token. Validate it and return the result
+		return validate_token(token)
 	else:
 		return False
 
