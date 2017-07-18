@@ -158,7 +158,7 @@ Herved kan det nemt tjekkes, om en token forsat er gyldig, ved blot at se på ti
 Tokenen (og timestamp) kan valideres ved at (gen)beregne hash af ```data + timestamp_udstedese``` med serverens secret\_key, da secret\_key er krævet for at lave en hash med et timestamp, der er forskellige fra det, der var i den originale token udstedt af serveren. Hvis en adversary forsøger at ændre ved tokens levetid (timestamp) eller data (fx username,roller m.v.) vil den genberegnede hash ikke stemme med hash'en i tokenen. 
 
 #### CORS
-Med POST bindings returnere Service Provider en XHTML-form (se kildekode), med en Submit-knap, der sender request til IdP'en, som den kaldende javascript i webklienten kan vise til brugeren. Da request til IdP'en sker via en html-form og ikke fra javascript, rammes dette ikke af Same-Origin Policy og CORS er ikke nødvendigt.
+Med POST bindings [[SAML-bindings]](#referencer) returnere Service Provider en XHTML-form (se kildekode), med en Submit-knap, der sender request til IdP'en, som den kaldende javascript i webklienten kan vise til brugeren. Da request til IdP'en sker via en html-form og ikke fra javascript, rammes dette ikke af Same-Origin Policy og CORS er ikke nødvendigt.
 
 ## Gennegemgang af relevante tekniske implementationsdetaljer <a name="tekniskedetaljer"></a>
 
