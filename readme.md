@@ -8,14 +8,14 @@ PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmode
 PoC er bygget som eksempel implementation af følgende SAML 2.0 standarder:
 
 - I [[SAML-core]](#referencer) er ```SAML AuthnRequest``` og ```SAML Assertion``` defineret. Disse er hhv. sendt som del af et ```SAML Request``` eller et ```SAML Response```. SAML standarderne beskriver regler for både udformning og processering af autnnrequest/assertion og request/response.
- - ```SAML Request``` beskrives i [[SAML-core]](#referencer) afsnit 3.2
- - ```SAML AuthnRequest``` beskrives i [[SAML-core]](#referencer) afsnit 3.4
- - ```SAML Response``` beskrives i [[SAML-core]](#referencer) afsnit 3.2
- - ```SAML Assertion``` beskrives i [[SAML-core]](#referencer) afsnit 2
+    - ```SAML Request``` beskrives i [[SAML-core]](#referencer) afsnit 3.2
+    - ```SAML AuthnRequest``` beskrives i [[SAML-core]](#referencer) afsnit 3.4
+    - ```SAML Response``` beskrives i [[SAML-core]](#referencer) afsnit 3.2
+    - ```SAML Assertion``` beskrives i [[SAML-core]](#referencer) afsnit 2
 - I [[SAML-profil]](#referencer) er SAML WebSSO Profile profilen beskrevet. Profilen er det centrale element, som beskriver hvordan sikkerhedsmodellen og integrationen med IdP'er virker.
- - WebSSO Profile beskrives i [[SAML-profil]](#referencer) afsnit 4.1
+    - WebSSO Profile beskrives i [[SAML-profil]](#referencer) afsnit 4.1
 - I [[SAML-bindings]](#referencer) er beskrevet hvordan WebSSO profilen kan implementeres via HTTP. Dvs. det er en beskrivelse af, hvordan beskeder udvæksles via HTTP. Der er flere muligheder ("bindings"). Denne PoC bygge på SAML HTTP POST bindings.
- - HTTP POST Binding beskrives i [[SAML-bindings]](#referencer) afsnit 3.5
+    - HTTP POST Binding beskrives i [[SAML-bindings]](#referencer) afsnit 3.5
 
 
 ## Indhold
