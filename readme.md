@@ -3,7 +3,20 @@ Med PoC'en kan man gennemføre et end-to-end scenarie, der består i at åben af
 
 Denne PoC er lavet, for at sikre den valgte arkitektur i løsningen passer sammen med SAML2.0 WebSSO med POST bindings på et teknisk niveau. Derudover er et sekundært formål at give et simpelt eksempel på, hvordan sikkerhedsarkitekturen kan virke til brug for fælles forståelse i projektet.
 
-PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmodellen er, og illustrere et end-to-end eksempel på, hvordan SAML WebSSO profilen kan implementeres. Der er derfor flere dele af implementationen, der ikke er relevant for sikkerhedsmodellen der er "faket". 
+PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmodellen er, og illustrere et end-to-end eksempel på, hvordan SAML WebSSO profilen kan implementeres. Der er derfor flere dele af implementationen, der ikke er relevant for sikkerhedsmodellen der er "faket".
+
+PoC er bygget som eksempel implementation af følgende SAML 2.0 standarder:
+
+- I [[SAML-core]](#referencer) er ```SAML AuthnRequest``` og ```SAML Assertion``` defineret. Disse er hhv. sendt som del af et ```SAML Request``` eller et ```SAML Response```. SAML standarderne beskriver regler for både udformning og processering af autnnrequest/assertion og request/response.
+ - ```SAML Request``` beskrives i [[SAML-core]](#referencer) afsnit 3.2
+ - ```SAML AuthnRequest``` beskrives i [[SAML-core]](#referencer) afsnit 3.4
+ - ```SAML Response``` beskrives i [[SAML-core]](#referencer) afsnit 3.2
+ - ```SAML Assertion``` beskrives i [[SAML-core]](#referencer) afsnit 2
+- I [[SAML-profil]](#referencer) er SAML WebSSO Profile profilen beskrevet. Profilen er det centrale element, som beskriver hvordan sikkerhedsmodellen og integrationen med IdP'er virker.
+ - WebSSO Profile beskrives i [[SAML-profil]](#referencer) afsnit 4.1
+- I [[SAML-bindings]](#referencer) er beskrevet hvordan WebSSO profilen kan implementeres via HTTP. Dvs. det er en beskrivelse af, hvordan beskeder udvæksles via HTTP. Der er flere muligheder ("bindings"). Denne PoC bygge på SAML HTTP POST bindings.
+ - HTTP POST Binding beskrives i [[SAML-bindings]](#referencer) afsnit 3.5
+
 
 ## Indhold
 - [Overblik](#overblik)
@@ -23,7 +36,7 @@ Komponent  | Fil   | Beskrivelse
 Service Provider | ```service_provider_poc.py``` |En eksempel Service Provider, som udstiller en API hvorfra JSON data kan hentes.
 Web-frontend Server | ```webapp/frontend_server_poc.py``` |En eksempel Web-frontend Server, som hoster en client-side app. Dvs. kald til Service Provider sker ikke fra denne komponent, med sker istedet for fra en browser.
 Browser | N/A _(Lokal på PC)_ | Web-frontend Server leverer en client-side app, som afvikles i brugeren browser.
-Client-side app | ```webapp/index.html``` og ```webapp/webclient.js``` |Client-side applikationen er implementeret i disse to filer. De er alt hvad Web-frontend Serveren returnere ved et GET til den (root path '/'). 
+Client-side app | ```webapp/templates/index.html``` og ```webapp/static/webclient.js``` |Client-side applikationen er implementeret i disse to filer. De er alt hvad Web-frontend Serveren returnere ved et GET til den (root path '/'). 
 IdP (Identity Provider) |Som test IdP anvendes [Shibboleths test IdP](https://www.testshib.org/) | Der anvendes en ekstern test IdP af to grunde: 1) Det simluere scenariet for løsningen idet IdP'en, der skal integreres til ejes af en anden organisation. 2) En veletableret test IdP sender korrekte SAML beskeder, og forventer (og validerer) korrekte SAML beskeder.
 
 ### Teknologi
