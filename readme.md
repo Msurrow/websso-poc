@@ -2,8 +2,8 @@
 
 ## Indhold
 - [Indledning](#indled)
-- [Overblik](#overblik)
 - [Sikkerhedsmodel i Service Provider](#sikkerhedsmodel)
+- [Overblik over eksempel kode](#overblik)
 - [Installation, deploy og anvendelse](#deploy)
 - [Gennemgang af relevante tekniske implementationsdetaljer](#tekniskedetaljer)
 - [Referencer](#referencer)
@@ -32,48 +32,6 @@ PoC er bygget som eksempel implementation af følgende SAML 2.0 standarder:
     - HTTP POST Binding beskrives i [[SAML-bindings]](#referencer) afsnit 3.5
 - I [[SAML-technical overview]](#referencer) er beskrivelser af, hvordan WebSSO profilen implementeres på et mere konkret (teknisk) niveau, end i ovenstående dokumenter.
 
-## Overblik <a name="overblik"></a>
-PoC'en indeholder en API backend (Service Provider), en frontend-webserver, som server en clientside app til en browser (Service Consumer), samt nødvendig meta-data m.v. for at sætte komponenterne korrekt op.
-
-I Service Provideren er API endpoints beskyttet og kræver at kalderen (Service Consumer) er autentificeret (detaljer [nedenfor](#sikkerhedsmodel)). Hvis der laves et API kald uden kalder er autentificeret, vil WebSSO login flowet blive sat igang.
-
-Komponent  | Fil   | Beskrivelse
----------- | ----- |------------
-Service Provider | ```service_provider_poc.py``` |En eksempel Service Provider, som udstiller en API hvorfra JSON data kan hentes.
-Web-frontend Server | ```webapp/frontend_server_poc.py``` |En eksempel Web-frontend Server, som hoster en client-side app. Dvs. kald til Service Provider sker ikke fra denne komponent, med sker istedet for fra en browser.
-Browser | N/A _(Lokal på PC)_ | Web-frontend Server leverer en client-side app, som afvikles i brugeren browser.
-Client-side app | ```webapp/templates/index.html``` og ```webapp/static/webclient.js``` |Client-side applikationen er implementeret i disse to filer. De er alt hvad Web-frontend Serveren returnere ved et GET til den (root path '/'). 
-IdP (Identity Provider) |Som test IdP anvendes [Shibboleths test IdP](https://www.testshib.org/) | Der anvendes en ekstern test IdP af to grunde: 1) Det simluere scenariet for løsningen idet IdP'en, der skal integreres til ejes af en anden organisation. 2) En veletableret test IdP sender korrekte SAML beskeder, og forventer (og validerer) korrekte SAML beskeder.
-
-Nedenstående figur viser, hvilken af ovenstående dele af eksempel koden udgør de forskellige dele af  arkitekturen:
-
-```
-                      +----------------+
-                      |                |
-                      |  Idp           | Shibboleth test
-                      |                | IdP server
-                      +----------------+
-
-+-----------------+                           +-----------------+
-|Service Consumer |                           |Service Provider |
-|                 |                           |(API)            |  service_provider_poc.py
-|  +----------+   |                           |                 |
-|  |Browser   |   | webapp/index.html         +-----------------+
-|  |          |   | webapp/webclient.js
-|  +----------+   |
-|                 |
-|  +----------+   |
-|  |Frontend  |   |  frontend_server_poc.py
-|  |server    |   |
-|  +----------+   |
-+-----------------+
-```
-
-### Teknologi
-PoC'en er skrevet i Python og HTML+Javascript (jquery). Python er valgt fordi det hurtigt at lave PoCs som denne og ikke mindst fordi det er let læseligt, uanset hvilke teknologisk baggrund man kommer med.
-
-I både ```service_provider_poc.py``` og ```frontend_server_poc.py``` er Flask mini-frameworket anvendt til at lave web-serveren. Flask er et lille og intuitivt framework, der er hurtigt at for overblik over også selvom man ikke tidligere har arbejdet med det. Mere om [Flask](http://flask.pocoo.org/).
-
 ## Sikkerhedsmodel i Service Provider<a name="sikkerhedsmodel"></a>
 **Nedenstående udgør et _eksempel_ på, hvordan sikkerhedsmodellen i Service Provideren _kan_ implementeres. Til løsningen skal vælges den implementering der passer bedst til løsningen og projektet.**
 
@@ -86,42 +44,19 @@ Med WebSSO profilen og HTTP POST-bindings får webklienten (client-side app'en) 
 Service Provideren væksler derfor en gylding SAML Assertion til en token (med begrænset levetid), når webklienten sender SAML Assertionen. Denne token kan inkluderes i alle efterfølgende kald til API endpoints for at sikre at request'eren er autentificeret. Dette er hvad der i SAML profilerne beskrives som at Service Provideren "har en etableret sikkerhedskontekst med Service Consumer", dvs. der er udsted en gyldig token.
 
 Forholdene mellem komponenter kan illustreres sådan (bemærk dette er ikke det faktiske flow):
-
-```
-            +-------------------+
-  login     |                   |
-  +-------> |  IdP              |
-  |         |                   |
-  | +-----+ |                   |
-  | |       +-------------------+
-  | |
-  | | OK, du får en SAML Assertion
-  | |
-  | |
-  | |
-  | v
-+-+-----------------+  Her er en SAML Assertion    +-----------------------+
-|                   | +------------------------->  |                       |
-|  Service Consumer |                              |  Service Provider     |
-|  (webklient)      | <-------------------------+  |  (API)                |
-|                   |  Tak, du får en Token        |                       |
-+-------------------+                              +-----------------------+
-                       GET /endpoint?token=ed423afc
-                      +------------------------->
-
-                      <-------------------------+
-                       HTTP 200, {data: ..}
-
-                       GET endpoint_2?token=ed423afc
-                      +------------------------->
-
-                      <-------------------------+
-                       HTTP 200, {data2: ..}
-
-```
+![](https://raw.githubusercontent.com/Msurrow/websso-poc/master/graphics/WebSSO%20PoC%20-%20alle%20steps.png "Alle steps i integrationsflowet")
 
 #### Hvorfor skal RelayState bruges?
+.. og hvad skal den sidste redirect til frontend serveren til for?
 
+Det sidste step skal til fordi vi har med en client-side applikation at gøre. Hvis vi i step 10 istedet for at returnere til frontend serveren bare returnere tokenen til browseren med en HTTP 200 OK og token i payload, vil det eneste browseren modtager være en JSON token. Dvs. ingen HTML eller Javascript blive returneret, og dermed kan klienten ikke komme videre. Brugeren vil bare se en tekststreng, der er vores token og ikke længere se klienten.
+
+RelayState sættes til en URL, som frontend serveren udstiller, hvor frontend serveren vil returnere webklienten (præcis som i step 2), dog bare med token lagt ind i html/javascript.
+
+På den måde har webklienten nu gennemført login flowet og er i besidelse af en gyldig token til API'et, samtidig med at webklienten er loadet. Browseren/webklienten kan nu kalde API'et med en gyldig token og får faktisk svar return.
+
+Situationen er illustreret på figuren nedenfor.
+![](https://raw.githubusercontent.com/Msurrow/websso-poc/master/graphics/WebSSO%20PoC%20-%20hvorfor%20RelayState.png)
 
 #### Bemærkning om generering af token
 En tidsbegrænset token kan genereres ved at lade token bestå af:
@@ -146,6 +81,27 @@ Token kan i princippet også være SAML Assertion, eller del heraf, så længe d
 
 #### CORS
 Med POST bindings [[SAML-bindings]](#referencer) returnere Service Provider en XHTML-form (se kildekode), med en Submit-knap, der sender request til IdP'en, som den kaldende javascript i webklienten kan vise til brugeren. Da request til IdP'en sker via en html-form og ikke fra javascript, rammes dette ikke af Same-Origin Policy og CORS er ikke nødvendigt.
+
+## Overblik over eksempel kode<a name="overblik"></a>
+PoC'en indeholder en API backend (Service Provider), en frontend-webserver, som server en clientside app til en browser (Service Consumer), samt nødvendig meta-data m.v. for at sætte komponenterne korrekt op.
+
+I Service Provideren er API endpoints beskyttet og kræver at kalderen (Service Consumer) er autentificeret (detaljer [nedenfor](#sikkerhedsmodel)). Hvis der laves et API kald uden kalder er autentificeret, vil WebSSO login flowet blive sat igang.
+
+Komponent  | Fil   | Beskrivelse
+---------- | ----- |------------
+Service Provider | ```service_provider_poc.py``` |En eksempel Service Provider, som udstiller en API hvorfra JSON data kan hentes.
+Web-frontend Server | ```webapp/frontend_server_poc.py``` |En eksempel Web-frontend Server, som hoster en client-side app. Dvs. kald til Service Provider sker ikke fra denne komponent, med sker istedet for fra en browser.
+Browser | N/A _(Lokal på PC)_ | Web-frontend Server leverer en client-side app, som afvikles i brugeren browser.
+Client-side app | ```webapp/templates/index.html``` og ```webapp/static/webclient.js``` |Client-side applikationen er implementeret i disse to filer. De er alt hvad Web-frontend Serveren returnere ved et GET til den (root path '/'). 
+IdP (Identity Provider) |Som test IdP anvendes [Shibboleths test IdP](https://www.testshib.org/) | Der anvendes en ekstern test IdP af to grunde: 1) Det simluere scenariet for løsningen idet IdP'en, der skal integreres til ejes af en anden organisation. 2) En veletableret test IdP sender korrekte SAML beskeder, og forventer (og validerer) korrekte SAML beskeder.
+
+Nedenstående figur viser, hvilken af ovenstående dele af eksempel koden udgør de forskellige dele af  arkitekturen:
+![](https://github.com/Msurrow/websso-poc/blob/master/graphics/WebSSO%20PoC%20-%20kode.png?raw=true "Kildekode som de hører til komponenterne")
+
+### Teknologi
+PoC'en er skrevet i Python og HTML+Javascript (jquery). Python er valgt fordi det hurtigt at lave PoCs som denne og ikke mindst fordi det er let læseligt, uanset hvilke teknologisk baggrund man kommer med.
+
+I både ```service_provider_poc.py``` og ```frontend_server_poc.py``` er Flask mini-frameworket anvendt til at lave web-serveren. Flask er et lille og intuitivt framework, der er hurtigt at for overblik over også selvom man ikke tidligere har arbejdet med det. Mere om [Flask](http://flask.pocoo.org/).
 
 ## Install, deploy og anvendelse <a name="deploy"></a>
 Der er to komponenter der skal deployes før PoC'en kan afprøves:
@@ -261,13 +217,15 @@ Elemet | Attribut | Beskrivelse
 - Webklient modtager svar fra Service Provider, identificere at der kom et SAML AuthnRequest retur (evt via HTTP response kode) i form af XHTML-form. Webklient viser XHTML-form for brugeren. Brugern kan trykke på "Login"-knappen.
 - XHTML-formens action-attribut indeholder url til IdP, hvorfor Webklienten ved tryk på "Login"-knap sender et POST request til IdP'en, med AuthnRequest som angivet i XHTML-formen (```input name="SAMLRequest" ```-attribut). RelayState (```input name="RelayState" ```-attribut) medsendes også - IdP'en anvender ikke denne til noget, men medsender den til Service Provider, efter login er gennemført. Bemærk vi sætter RelayState i webklienten, som beskrevet ovenfor. 
     - ```=> POST til https://idp.testshib.org/idp/profile/SAML2/POST/SSO?SAMLRequest=<AuthnRequest_b64_encoded>&RelayState=http://localhost:8000/login_complete```
-- IdP laver login forløb med browser/brugeren. Efter successfuld login genererer IdP'en en ```SAML Response```, indeholdende ```SAML Assertion```, som beviser brugerens autenticitet. IdP'en laver en POST request til Service Provideren på den url, der er angivet i hhv. metadata og ```AuthnRequest```.
-    - ```=> POST til http://websso-poc.herokuapp.com/saml_login_success``` med ```SAMLResponse``` og ```RelayState``` i request form-data (```Content-Type: application/x-www-form-urlencoded```).
-- Service Provider modtager POST request fra IdP og behandler. I eksemplet er det handleren for endpoint ```/kai-themes```. Da POST request nu indeholder et gyldig ```SAML Response```, generere Service Provider en token. Service Provider læser også ```RelayState``` og token returneres til Webfront-end server, på det endpoint der er angivet i RelayState.
+- IdP laver login forløb med browser/brugeren. Efter successfuld login genererer IdP'en en ```SAML Response```, indeholdende ```SAML Assertion```, som beviser brugerens autenticitet. IdP'en sender en REDIRECT til Service Provideren på den url, der er angivet i hhv. metadata og ```AuthnRequest```.
+    - ```=> Redirect 302 Location: http://websso-poc.herokuapp.com/saml_login_success``` med ```SAMLResponse``` og ```RelayState``` i request.
+- Browser følger redirect
+    - ```=> GET http://websso-poc.herokuapp.com/saml_login_success``` med ```SAMLResponse``` og ```RelayState``` URL encoded
+- Service Provider modtager POST request fra IdP og behandler requestet. I eksemplet er det handler'en for endpoint ```/kai-themes```. Da GET request nu indeholder et gyldig ```SAML Response```, generere Service Provider en token. Service Provider læser også ```RelayState``` og token returneres til Webfront-end server, på det endpoint der er angivet i RelayState.
     - ```=> Redirect 302 Location: http://localhost:8000/login_complete?token=<genereret_token>```
 - Browser følger redirect
     - ```=> GET http://localhost:8000/login_complete?token=<genereret_token>```
-- Web-frontend Serveren modtager token via request og viser siden til brugeren hvor denne er logget ind. Brugeren kan nu bruge "Hent data" knappen igen, til at hente data fra Service Provideren.
+- Web-frontend Serveren modtager token via request og viser siden til brugeren, hvor denne er logget ind. Brugeren kan nu bruge "Hent data" knappen igen, til at hente data fra Service Provideren.
 
 #### RelayState
 
@@ -290,7 +248,7 @@ For at afvikle PoC koden selv skal følgende dependencies installeres:
 
 - Python 3 [Link](https://www.python.org/downloads/)
 - Pip _(kommer som del af standard installation ved Python 3.4+)_
-- (evt. VirtualEnvironment) [Link](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/)
+- (evt. VirtualEnvironment) [Link](https://virtualenv.pypa.io/en/stable/installation/)
 
 Step-by-step installation (antaget ovenstående dependencies er installeret):
 
@@ -328,3 +286,12 @@ Tjek da at:
 
 - SP metadata er uploaded til IdP via registreringssiden
 - "valid until" attributten i metadata
+
+### Installation af python / virtualenv / dependencies
+Hvis du har problemer med at installere pkgconfig pakken, fordi en "nose>=1.3" dependency mangler, kan du installere nose-pakken manuelt og køre ovenstående kommando igen: 
+
+```~#: pip install nose```
+
+```~#: pip install -r requirements.txt```
+
+Hvis "pip" ikke findes og du lige har installeret python3 fra ovenstående link, skal du bruge "pip3" istedet for (dvs. i alle ovenstående kommandoer).
