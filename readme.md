@@ -1,9 +1,36 @@
 # WebSSO Proof-of-Concept (PoC)
-Med PoC'en kan man gennemføre et end-to-end scenarie, der består i at åben af webklient-side, hente data fra API'et, blive redirected til IdP og gennemføre login. Efter login sendes man tilbage til webklienten og data kan hentes fra API, som vises i webklient.
+WebSSO POC'en er et konkret eksemple på implementering af SAML 2.0's WebSSO Profile (med HTTP POST binding) i et setup med en client-side application. At der er tale om en client-side application (dvs. API kald sker fra brugerens browser) giver et ekstra led i hele authentifikations flowet (mere herom senere).
 
-Denne PoC er lavet, for at sikre den valgte arkitektur i løsningen passer sammen med SAML2.0 WebSSO med POST bindings på et teknisk niveau. Derudover er et sekundært formål at give et simpelt eksempel på, hvordan sikkerhedsarkitekturen kan virke til brug for fælles forståelse i projektet.
+Højniveau arkitekturen ser ud som på figuren nedenfor.
 
-PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmodellen er, og illustrere et end-to-end eksempel på, hvordan SAML WebSSO profilen kan implementeres. Der er derfor flere dele af implementationen, der ikke er relevant for sikkerhedsmodellen der er "faket".
+```
+                   +----------------+
+                   |                |
+                   |  Idp           |
+                   |                |
+                   |                |
+                   +----------------+
+
+
++-----------------+                       +-----------------+
+|Service Consumer |                       |Service Provider |
+|                 |                       |(API)            |
+|  +----------+   |                       |                 |
+|  |Browser   |   |                       +-----------------+
+|  |          |   |
+|  +----------+   |
+|                 |
+|  +----------+   |
+|  |Frontend  |   |
+|  |server    |   |
+|  +----------+   |
++-----------------+
+```
+
+
+Med PoC'en kan man gennemføre et end-to-end scenarie, der består i at åben webklienten i en browser, klient henter data fra API'et, blive omstillet til IdP og gennemføre login. Efter login sendes brugeren tilbage til webklienten og data kan hentes fra API, som vises i webklient.
+
+PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmodellen er, og illustrere et end-to-end eksempel på, hvordan SAML WebSSO profilen kan implementeres. Der er derfor flere dele af implementationen, der ikke er relevant for sikkerhedsmodellen der er "faket" og som på ingen måde skal ses som eksempel på, hvordan god sikkerhed implementeres.
 
 PoC er bygget som eksempel implementation af følgende SAML 2.0 standarder:
 
@@ -16,12 +43,12 @@ PoC er bygget som eksempel implementation af følgende SAML 2.0 standarder:
     - WebSSO Profile beskrives i [[SAML-profil]](#referencer) afsnit 4.1
 - I [[SAML-bindings]](#referencer) er beskrevet hvordan WebSSO profilen kan implementeres via HTTP. Dvs. det er en beskrivelse af, hvordan beskeder udvæksles via HTTP. Der er flere muligheder ("bindings"). Denne PoC bygge på SAML HTTP POST bindings.
     - HTTP POST Binding beskrives i [[SAML-bindings]](#referencer) afsnit 3.5
-
+- I [[SAML-technical overview]](#referencer) er beskrivelser af, hvordan WebSSO profilen implementeres på et mere konkret (teknisk) niveau, end i ovenstående dokumenter.
 
 ## Indhold
 - [Overblik](#overblik)
-- [Installation, deploy og anvendelse](#deploy)
 - [Sikkerhedsmodel i Service Provider](#sikkerhedsmodel)
+- [Installation, deploy og anvendelse](#deploy)
 - [Gennemgang af relevante tekniske implementationsdetaljer](#tekniskedetaljer)
 - [Referencer](#referencer)
 - [10 second guide til installation af Python og dependencies](#deps)
@@ -39,65 +66,34 @@ Browser | N/A _(Lokal på PC)_ | Web-frontend Server leverer en client-side app,
 Client-side app | ```webapp/templates/index.html``` og ```webapp/static/webclient.js``` |Client-side applikationen er implementeret i disse to filer. De er alt hvad Web-frontend Serveren returnere ved et GET til den (root path '/'). 
 IdP (Identity Provider) |Som test IdP anvendes [Shibboleths test IdP](https://www.testshib.org/) | Der anvendes en ekstern test IdP af to grunde: 1) Det simluere scenariet for løsningen idet IdP'en, der skal integreres til ejes af en anden organisation. 2) En veletableret test IdP sender korrekte SAML beskeder, og forventer (og validerer) korrekte SAML beskeder.
 
+Nedenstående figur viser, hvilken af ovenstående dele af eksempel koden udgør de forskellige dele af  arkitekturen:
+
+```
+                      +----------------+
+                      |                |
+                      |  Idp           | Shibboleth test
+                      |                | IdP server
+                      +----------------+
+
++-----------------+                           +-----------------+
+|Service Consumer |                           |Service Provider |
+|                 |                           |(API)            |  service_provider_poc.py
+|  +----------+   |                           |                 |
+|  |Browser   |   | webapp/index.html         +-----------------+
+|  |          |   | webapp/webclient.js
+|  +----------+   |
+|                 |
+|  +----------+   |
+|  |Frontend  |   |  frontend_server_poc.py
+|  |server    |   |
+|  +----------+   |
++-----------------+
+```
+
 ### Teknologi
 PoC'en er skrevet i Python og HTML+Javascript (jquery). Python er valgt fordi det hurtigt at lave PoCs som denne og ikke mindst fordi det er let læseligt, uanset hvilke teknologisk baggrund man kommer med.
 
 I både ```service_provider_poc.py``` og ```frontend_server_poc.py``` er Flask mini-frameworket anvendt til at lave web-serveren. Flask er et lille og intuitivt framework, der er hurtigt at for overblik over også selvom man ikke tidligere har arbejdet med det. Mere om [Flask](http://flask.pocoo.org/).
-
-## Install, deploy og anvendelse <a name="deploy"></a>
-Der er to komponenter der skal deployes før PoC'en kan afprøves:
-
-- ```service_provider_poc.py```
-- ```frontend_server_poc.py```
-
-### Anveldelse af service\_provider_poc.py
-Med SAML POST bindings vil IdP'en efter et successfuld login, redirect browseren tilbage til Service Provideren direkte, ved at lave en HTTP POST request til Service Provideren. Derfor er det nødvendigt at vores PoC Service Provider har en public IP, som kan rammes af IdP'en. 
-
-For nemt afprøvning af PoC'en hostes en Service Provider på Heroku. Denne Service Provider er deployet direkte fra dette GIT repo, og kildekoden du finder i repo'et her er derfor det, der kører på den Heroku-deploy'et IdP. _(NB: Eksempel Service Provideren er deployet på en gratis server og tager derfor 5-10 sek om at svare på **første** request efter 30 minutters inaktivtet)._
-
-[Eksempel Service Provider](http://websso-poc.herokuapp.com/)
-
-Hvis du ønsker at prøve at deploy din egen Service Provider ud fra kode eksempler i dette repo, kan du se hvordan i afsnit nedenfor.
-
-### Anvendelse af frontend\_server_poc.py
-Start af Web-frontend Server skal blot har en port som argument
-
-```
-python webapp/frontend_server_poc.py 8000
-```
-Serveren startes i debug mode og findes på <http://localhost:8000/>
-
-### Opsætning af egen Service Provider
-Du kan hoste din egen Service Provider ved brug af kilekode i dette repo. Det kræver lidt opsætning og enkelte ændringer. Der er følgende ting, der skal gøres: **Bemærk(!) punkterne beskrevet herunder (eller lignende) vil skulle gøres når løsningens Service Provider skal sættes op sammen med den IdP, der skal bruges.**
-
-- Lave metadata for din Service Provider
-- Test IdP skal have importeret din Service Provider metadata
-- Din Service Provider skal have "importeret" IdP metadata
-- SAML AuthnRequest XML skal tilrettes
-- Redirect URL til fra IdP til din Service Provider skal sættes (kræver at din Service Provider har en public IP)
-
-#### Step 1: Lav metadata til din Service Provider
-På [dette link](https://www.samltool.com/sp_metadata.php) findes et værktøj til generering af Service Provider metadata, som virker med den valgte test IdP. Følgende felter skal udfyldes:
-
-- EntityId: En streng med navnet på din Service Provider (skal genbruges i AuthnRequest). F.eks. websso-poc.herokuapp.com
-- Attribute Consume Service Endpoint (HTTP-POST): Den URL som IdP'en skal redirect til med POST request
-- SP X.509 cert: Står om "optional" i metadata-værktøjet, men det er krævet for at test IdP'en vil sende et SAML Response. Dette felt skal derfor i vores PoC-case udfyldes.
-
-Resten er ikke nødvendigt for PoC-casen. Hvordan et X.509 certifikat genereres afhænger af, hvilken platform (OS) du arbejder på, og svaret overlades derfor til google. Det kan dog siges, at det er tilstrækkeligt med et self-signet certifikat i PoC-casen.
-
-#### Step 2: Registrer din Service Provider i IdP'en
-Test Idp'en har en side til [registrering af ny service provider](https://www.testshib.org/register.html). Her kan du vælge din metadata-fil fra step 1 og importere denne.
-
-#### Step 3: IdP Url
-I din Service Provider skal IdP'en url indsættes. Dette er allerede gjort i service\_provider\poc.py. Url'en der er anvendt er
-
-```
-idp_url = "https://idp.testshib.org/idp/profile/SAML2/POST/SSO"
-```
-
-#### Step 4+5: Ret SAML AuthnRequest
-I file ```helpers.py``` findes funktionen der lave AuthnRequest'et. Attributten ```AssertionConsumerServiceURL``` og elementet ```<saml:Issuer >``` skal ændres til at passe med din Service Provider (se step 1 for Issuer).
-
 
 ## Sikkerhedsmodel i Service Provider<a name="sikkerhedsmodel"></a>
 **Nedenstående udgør et _eksempel_ på, hvordan sikkerhedsmodellen i Service Provideren _kan_ implementeres. Til løsningen skal vælges den implementering der passer bedst til løsningen og projektet.**
@@ -145,6 +141,8 @@ Forholdene mellem komponenter kan illustreres sådan (bemærk dette er ikke det 
 
 ```
 
+#### Hvorfor skal RelayState bruges?
+
 
 #### Bemærkning om generering af token
 En tidsbegrænset token kan genereres ved at lade token bestå af:
@@ -169,6 +167,60 @@ Token kan i princippet også være SAML Assertion, eller del heraf, så længe d
 
 #### CORS
 Med POST bindings [[SAML-bindings]](#referencer) returnere Service Provider en XHTML-form (se kildekode), med en Submit-knap, der sender request til IdP'en, som den kaldende javascript i webklienten kan vise til brugeren. Da request til IdP'en sker via en html-form og ikke fra javascript, rammes dette ikke af Same-Origin Policy og CORS er ikke nødvendigt.
+
+## Install, deploy og anvendelse <a name="deploy"></a>
+Der er to komponenter der skal deployes før PoC'en kan afprøves:
+
+- ```service_provider_poc.py```
+- ```frontend_server_poc.py```
+
+### Anveldelse af service\_provider_poc.py
+Med SAML POST bindings vil IdP'en efter et successfuld login, redirect browseren tilbage til Service Provideren direkte, ved at lave en HTTP POST request til Service Provideren. Derfor er det nødvendigt at vores PoC Service Provider har en public IP, som kan rammes af IdP'en. 
+
+For nemt afprøvning af PoC'en hostes en Service Provider på Heroku. Denne Service Provider er deployet direkte fra dette GIT repo, og kildekoden du finder i repo'et her er derfor det, der kører på den Heroku-deploy'et IdP. _(NB: Eksempel Service Provideren er deployet på en gratis server og tager derfor 5-10 sek om at svare på **første** request efter 30 minutters inaktivtet)._
+
+[Eksempel Service Provider på Heroku](http://websso-poc.herokuapp.com/)
+
+Hvis du ønsker at prøve at deploy din egen Service Provider ud fra kode eksempler i dette repo, kan du se hvordan i afsnit nedenfor.
+
+### Anvendelse af frontend\_server_poc.py
+Start af Web-frontend Server skal blot har en port som argument
+
+```
+python webapp/frontend_server_poc.py 8000
+```
+Serveren startes i debug mode og findes på <http://localhost:8000/>
+
+### Opsætning af egen Service Provider
+Du kan hoste din egen Service Provider ved brug af kilekode i dette repo. Det kræver lidt opsætning og enkelte ændringer. Der er følgende ting, der skal gøres: **Bemærk(!) punkterne beskrevet herunder (eller lignende) vil skulle gøres når løsningens Service Provider skal sættes op sammen med den IdP, der skal bruges.**
+
+- Lave metadata for din Service Provider
+- Test IdP skal have importeret din Service Provider metadata
+- Din Service Provider skal have "importeret" IdP metadata
+- SAML AuthnRequest XML skal tilrettes
+- Redirect URL til fra IdP til din Service Provider skal sættes (kræver at din Service Provider har en public IP)
+
+#### Step 1: Lav metadata til din Service Provider
+På [dette link](https://www.samltool.com/sp_metadata.php) findes et værktøj til generering af Service Provider metadata, som virker med den valgte test IdP. Følgende felter skal udfyldes:
+
+- EntityId: En streng med navnet på din Service Provider (skal genbruges i AuthnRequest). F.eks. websso-poc.herokuapp.com
+- Attribute Consume Service Endpoint (HTTP-POST): Den URL som IdP'en skal redirect til med POST request
+- SP X.509 cert: Står om "optional" i metadata-værktøjet, men det er krævet for at test IdP'en vil sende et SAML Response. Dette felt skal derfor i vores PoC-case udfyldes.
+
+Resten er ikke nødvendigt for PoC-casen. Hvordan et X.509 certifikat genereres afhænger af, hvilken platform (OS) du arbejder på, og svaret overlades derfor til google. Det kan dog siges, at det er tilstrækkeligt med et self-signet certifikat i PoC-casen.
+
+#### Step 2: Registrer din Service Provider i IdP'en
+Test Idp'en har en side til [registrering af ny service provider](https://www.testshib.org/register.html). Her kan du vælge din metadata-fil fra step 1 og importere denne.
+
+#### Step 3: IdP Url
+I din Service Provider skal IdP'en url indsættes. Dette er allerede gjort i service\_provider\poc.py. Url'en der er anvendt er
+
+```
+idp_url = "https://idp.testshib.org/idp/profile/SAML2/POST/SSO"
+```
+
+#### Step 4+5: Ret SAML AuthnRequest
+I file ```helpers.py``` findes funktionen der lave AuthnRequest'et. Attributten ```AssertionConsumerServiceURL``` og elementet ```<saml:Issuer >``` skal ændres til at passe med din Service Provider (se step 1 for Issuer).
 
 ## Gennemgang af relevante tekniske implementationsdetaljer <a name="tekniskedetaljer"></a>
 
@@ -251,6 +303,8 @@ I Poc'en er ```RelayState``` kun brugt til at afsluttet forløbet med at vise ``
 \[SAML-profil]: <http://www.oasis-open.org/committees/download.php/56782/sstc-saml-profiles-errata-2.0-wd-07.pdf>
 
 \[SAML-bindings]: <http://www.oasis-open.org/committees/download.php/56779/sstc-saml-bindings-errata-2.0-wd-06.pdf>
+
+\[SAML-technical overview]: <https://www.oasis-open.org/committees/download.php/11511/sstc-saml-tech-overview-2.0-draft-03.pdf>
 
 ## 10 second guide til installation af Python og dependencies <a name="deps"></a>
 For at afvikle PoC koden selv skal følgende dependencies installeres:
