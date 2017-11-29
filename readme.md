@@ -1,11 +1,21 @@
 # WebSSO Proof-of-Concept (PoC)
+
+## Indhold
+- [Indledning](#indled)
+- [Overblik](#overblik)
+- [Sikkerhedsmodel i Service Provider](#sikkerhedsmodel)
+- [Installation, deploy og anvendelse](#deploy)
+- [Gennemgang af relevante tekniske implementationsdetaljer](#tekniskedetaljer)
+- [Referencer](#referencer)
+- [10 second guide til installation af Python og dependencies](#deps)
+
+## Indledning <a name="indled"></a>
 WebSSO POC'en er et konkret eksemple på implementering af SAML 2.0's WebSSO Profile (med HTTP POST binding) i et setup med en client-side application. At der er tale om en client-side application (dvs. API kald sker fra brugerens browser) giver et ekstra led i hele authentifikations flowet (mere herom senere).
 
-Højniveau arkitekturen ser ud som på figuren nedenfor.
-
-
-
 Med PoC'en kan man gennemføre et end-to-end scenarie, der består i at åben webklienten i en browser, klient henter data fra API'et, blive omstillet til IdP og gennemføre login. Efter login sendes brugeren tilbage til webklienten og data kan hentes fra API, som vises i webklient.
+
+Højniveau arkitekturen ser ud som på figuren nedenfor.
+![](https://raw.githubusercontent.com/Msurrow/websso-poc/master/graphics/WebSSO%20PoC%20-%20hoejniveau.png "Højniveau illustration af sikkerhedsarkitektur")
 
 PoC'en er udelukkende tænkt til at illustrere, hvordan flow'et i sikkerhedsmodellen er, og illustrere et end-to-end eksempel på, hvordan SAML WebSSO profilen kan implementeres. Der er derfor flere dele af implementationen, der ikke er relevant for sikkerhedsmodellen der er "faket" og som på ingen måde skal ses som eksempel på, hvordan god sikkerhed implementeres.
 
@@ -21,14 +31,6 @@ PoC er bygget som eksempel implementation af følgende SAML 2.0 standarder:
 - I [[SAML-bindings]](#referencer) er beskrevet hvordan WebSSO profilen kan implementeres via HTTP. Dvs. det er en beskrivelse af, hvordan beskeder udvæksles via HTTP. Der er flere muligheder ("bindings"). Denne PoC bygge på SAML HTTP POST bindings.
     - HTTP POST Binding beskrives i [[SAML-bindings]](#referencer) afsnit 3.5
 - I [[SAML-technical overview]](#referencer) er beskrivelser af, hvordan WebSSO profilen implementeres på et mere konkret (teknisk) niveau, end i ovenstående dokumenter.
-
-## Indhold
-- [Overblik](#overblik)
-- [Sikkerhedsmodel i Service Provider](#sikkerhedsmodel)
-- [Installation, deploy og anvendelse](#deploy)
-- [Gennemgang af relevante tekniske implementationsdetaljer](#tekniskedetaljer)
-- [Referencer](#referencer)
-- [10 second guide til installation af Python og dependencies](#deps)
 
 ## Overblik <a name="overblik"></a>
 PoC'en indeholder en API backend (Service Provider), en frontend-webserver, som server en clientside app til en browser (Service Consumer), samt nødvendig meta-data m.v. for at sætte komponenterne korrekt op.
