@@ -3,29 +3,6 @@ WebSSO POC'en er et konkret eksemple på implementering af SAML 2.0's WebSSO Pro
 
 Højniveau arkitekturen ser ud som på figuren nedenfor.
 
-```
-                   +----------------+
-                   |                |
-                   |  Idp           |
-                   |                |
-                   |                |
-                   +----------------+
-
-
-+-----------------+                       +-----------------+
-|Service Consumer |                       |Service Provider |
-|                 |                       |(API)            |
-|  +----------+   |                       |                 |
-|  |Browser   |   |                       +-----------------+
-|  |          |   |
-|  +----------+   |
-|                 |
-|  +----------+   |
-|  |Frontend  |   |
-|  |server    |   |
-|  +----------+   |
-+-----------------+
-```
 
 
 Med PoC'en kan man gennemføre et end-to-end scenarie, der består i at åben webklienten i en browser, klient henter data fra API'et, blive omstillet til IdP og gennemføre login. Efter login sendes brugeren tilbage til webklienten og data kan hentes fra API, som vises i webklient.
