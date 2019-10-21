@@ -29,5 +29,5 @@ requests==2.18.1
 six==1.10.0
 urllib3==1.21.1
 WebOb==1.7.3
-Werkzeug==0.12.2
+Werkzeug==0.15.3
 zope.interface==4.4.2
